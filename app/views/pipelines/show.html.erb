@@ -1,0 +1,67 @@
+<div class="max-w-4xl mx-auto p-6">
+  <h1 class="text-2xl font-bold mb-2"><%= @pipeline.name %></h1>
+  <p class="text-gray-500 mb-6">Projekt: <%= link_to @pipeline.project.name, @pipeline.project, class: "text-blue-600 hover:underline" %></p>
+
+  <%# Import-Formular %>
+  <div class="bg-gray-50 border rounded-lg p-4 mb-6">
+    <h2 class="font-semibold mb-2">CSV Import</h2>
+    <%= form_tag import_csv_pipeline_path(@pipeline), multipart: true, class: "flex items-center gap-4" do %>
+      <%= file_field_tag :csv_file, accept: ".csv", class: "text-sm" %>
+      <%= submit_tag "Importieren", class: "bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 cursor-pointer" %>
+    <% end %>
+  </div>
+
+  <%# Steps-Übersicht %>
+  <div class="flex gap-2 mb-6 flex-wrap">
+    <% @steps.each do |step| %>
+      <div class="bg-white border rounded px-3 py-1 text-sm">
+        <span class="font-mono text-gray-400"><%= step.position %>.</span>
+        <%= step.name %>
+        <span class="text-gray-400 text-xs">(<%= step.step_type %>)</span>
+      </div>
+    <% end %>
+  </div>
+
+  <%# Items-Tabelle %>
+  <h2 class="font-semibold mb-2">Items (<%= @items.count %>)</h2>
+
+  <% if @items.any? %>
+    <table class="w-full border-collapse">
+      <thead>
+        <tr class="bg-gray-100 text-left text-sm">
+          <th class="p-2 border">Name</th>
+          <th class="p-2 border">Company</th>
+          <th class="p-2 border">Status</th>
+          <th class="p-2 border">Step</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @items.each do |item| %>
+          <tr class="hover:bg-gray-50">
+            <td class="p-2 border">
+              <%= link_to item.data["name"] || "---", item_path(item), class: "text-blue-600 hover:underline" %>
+            </td>
+            <td class="p-2 border"><%= item.data["company"] || "---" %></td>
+            <td class="p-2 border">
+              <span class="inline-block px-2 py-0.5 rounded text-xs font-medium
+                <%= case item.status
+                    when 'pending' then 'bg-gray-200 text-gray-700'
+                    when 'processing' then 'bg-yellow-100 text-yellow-800'
+                    when 'review' then 'bg-blue-100 text-blue-800'
+                    when 'approved', 'done' then 'bg-green-100 text-green-800'
+                    when 'sent' then 'bg-emerald-100 text-emerald-800'
+                    when 'failed' then 'bg-red-100 text-red-800'
+                    else 'bg-gray-100'
+                    end %>">
+                <%= item.status %>
+              </span>
+            </td>
+            <td class="p-2 border text-sm text-gray-500"><%= item.current_step&.name || "---" %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% else %>
+    <p class="text-gray-400">Keine Items. CSV importieren um zu starten.</p>
+  <% end %>
+</div>

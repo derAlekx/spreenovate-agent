@@ -1,0 +1,56 @@
+<div class="max-w-4xl mx-auto p-6">
+  <p class="text-sm text-gray-500 mb-4">
+    <%= link_to @item.pipeline.project.name, @item.pipeline.project, class: "text-blue-600 hover:underline" %>
+    &rarr;
+    <%= link_to @item.pipeline.name, @item.pipeline, class: "text-blue-600 hover:underline" %>
+  </p>
+
+  <h1 class="text-2xl font-bold mb-2"><%= @item.data["name"] || "Item ##{@item.id}" %></h1>
+
+  <div class="flex gap-4 mb-6 text-sm">
+    <span class="inline-block px-2 py-0.5 rounded font-medium
+      <%= case @item.status
+          when 'pending' then 'bg-gray-200 text-gray-700'
+          when 'processing' then 'bg-yellow-100 text-yellow-800'
+          when 'review' then 'bg-blue-100 text-blue-800'
+          when 'approved', 'done' then 'bg-green-100 text-green-800'
+          when 'sent' then 'bg-emerald-100 text-emerald-800'
+          when 'failed' then 'bg-red-100 text-red-800'
+          else 'bg-gray-100'
+          end %>">
+      <%= @item.status %>
+    </span>
+    <span class="text-gray-500">Step: <%= @item.current_step&.name || "---" %></span>
+  </div>
+
+  <%# JSON-Daten %>
+  <h2 class="font-semibold mb-2">Data</h2>
+  <pre class="bg-gray-50 border rounded p-4 text-sm overflow-auto mb-6"><%= JSON.pretty_generate(@item.data) %></pre>
+
+  <%# Events %>
+  <h2 class="font-semibold mb-2">Events (<%= @events.count %>)</h2>
+  <% if @events.any? %>
+    <table class="w-full border-collapse">
+      <thead>
+        <tr class="bg-gray-100 text-left text-sm">
+          <th class="p-2 border">Typ</th>
+          <th class="p-2 border">Step</th>
+          <th class="p-2 border">Notiz</th>
+          <th class="p-2 border">Zeit</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @events.each do |event| %>
+          <tr class="hover:bg-gray-50">
+            <td class="p-2 border text-sm"><%= event.event_type %></td>
+            <td class="p-2 border text-sm text-gray-500"><%= event.pipeline_step&.name || "---" %></td>
+            <td class="p-2 border text-sm"><%= event.note || "---" %></td>
+            <td class="p-2 border text-sm text-gray-400"><%= event.created_at.strftime("%d.%m.%Y %H:%M") %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% else %>
+    <p class="text-gray-400">Keine Events.</p>
+  <% end %>
+</div>
