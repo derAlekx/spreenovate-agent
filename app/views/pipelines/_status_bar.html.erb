@@ -1,0 +1,42 @@
+<% counts = {
+  total: pipeline.items.count,
+  review: pipeline.items.where(status: "review").count,
+  approved: pipeline.items.where(status: "approved").count,
+  skipped: pipeline.items.where(status: "rejected").count,
+  pending: pipeline.items.where(status: "pending").count,
+  sent: pipeline.items.where(status: "sent").count
+} %>
+
+<div class="bg-white border rounded-lg shadow-sm p-4 mb-6">
+  <div class="flex items-center gap-6 text-sm">
+    <div>
+      <span class="text-gray-500">Total</span>
+      <span class="font-semibold ml-1"><%= counts[:total] %></span>
+    </div>
+    <div>
+      <span class="inline-block w-2 h-2 rounded-full bg-yellow-400 mr-1"></span>
+      <span class="text-gray-500">Review</span>
+      <span class="font-semibold ml-1"><%= counts[:review] %></span>
+    </div>
+    <div>
+      <span class="inline-block w-2 h-2 rounded-full bg-green-500 mr-1"></span>
+      <span class="text-gray-500">Approved</span>
+      <span class="font-semibold ml-1"><%= counts[:approved] %></span>
+    </div>
+    <div>
+      <span class="inline-block w-2 h-2 rounded-full bg-red-400 mr-1"></span>
+      <span class="text-gray-500">Skipped</span>
+      <span class="font-semibold ml-1"><%= counts[:skipped] %></span>
+    </div>
+    <div>
+      <span class="inline-block w-2 h-2 rounded-full bg-gray-400 mr-1"></span>
+      <span class="text-gray-500">Pending</span>
+      <span class="font-semibold ml-1"><%= counts[:pending] %></span>
+    </div>
+    <div>
+      <span class="inline-block w-2 h-2 rounded-full bg-emerald-500 mr-1"></span>
+      <span class="text-gray-500">Sent</span>
+      <span class="font-semibold ml-1"><%= counts[:sent] %></span>
+    </div>
+  </div>
+</div>

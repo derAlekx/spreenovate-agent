@@ -7,6 +7,17 @@ Rails.application.routes.draw do
     member do
       post :import_csv
     end
+    resources :items, only: [:show, :update], controller: "pipeline_items" do
+      member do
+        post :approve
+        post :skip
+        post :reset
+      end
+      collection do
+        post :bulk_approve
+        post :bulk_reset
+      end
+    end
   end
 
   resources :items, only: [:show]

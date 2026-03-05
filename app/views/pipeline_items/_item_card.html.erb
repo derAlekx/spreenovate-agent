@@ -1,0 +1,112 @@
+<div class="bg-white border rounded-lg shadow-sm p-4" id="<%= dom_id(item) %>_card" data-controller="inline-edit">
+  <%# Header %>
+  <div class="flex items-start justify-between mb-3">
+    <div>
+      <h3 class="font-semibold text-gray-900">
+        <%= item.data["name"] || "Item ##{item.id}" %>
+        <% if item.data["company"] %>
+          <span class="text-gray-400 font-normal">&middot;</span>
+          <span class="text-gray-600 font-normal"><%= item.data["company"] %></span>
+        <% end %>
+        <% if item.data["title"] %>
+          <span class="text-gray-400 font-normal">&middot;</span>
+          <span class="text-gray-500 font-normal text-sm"><%= item.data["title"] %></span>
+        <% end %>
+      </h3>
+      <% if item.data["email"] %>
+        <p class="text-sm text-gray-400"><%= item.data["email"] %></p>
+      <% end %>
+    </div>
+    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium
+      <%= case item.status
+          when 'pending' then 'bg-gray-100 text-gray-700'
+          when 'processing' then 'bg-blue-100 text-blue-700'
+          when 'review' then 'bg-yellow-100 text-yellow-700'
+          when 'approved' then 'bg-green-100 text-green-700'
+          when 'rejected' then 'bg-red-100 text-red-700'
+          when 'sent' then 'bg-emerald-100 text-emerald-700'
+          when 'failed' then 'bg-red-100 text-red-700'
+          else 'bg-gray-100 text-gray-700'
+          end %>">
+      <%= item.status %>
+    </span>
+  </div>
+
+  <%# Research (aufklappbar) %>
+  <% if item.data["research"].present? %>
+    <details class="mb-3">
+      <summary class="text-sm text-blue-600 cursor-pointer hover:text-blue-800">Research anzeigen</summary>
+      <div class="mt-2 p-3 bg-gray-50 rounded text-sm text-gray-700">
+        <% if item.data.dig("research", "summary") %>
+          <p><%= item.data.dig("research", "summary") %></p>
+        <% end %>
+        <% if item.data.dig("research", "pain_points").present? %>
+          <p class="mt-2 font-medium text-gray-600">Pain Points:</p>
+          <ul class="list-disc list-inside">
+            <% item.data.dig("research", "pain_points").each do |point| %>
+              <li><%= point %></li>
+            <% end %>
+          </ul>
+        <% end %>
+        <% if item.data.dig("research", "hook_angle") %>
+          <p class="mt-2"><span class="font-medium text-gray-600">Hook:</span> <%= item.data.dig("research", "hook_angle") %></p>
+        <% end %>
+      </div>
+    </details>
+  <% end %>
+
+  <%# Draft %>
+  <% if item.data["draft"].present? %>
+    <div class="mb-4">
+      <%# Read mode %>
+      <div data-inline-edit-target="display">
+        <p class="font-medium text-gray-900 mb-1">Betreff: <%= item.data.dig("draft", "subject") %></p>
+        <div class="text-sm text-gray-700 whitespace-pre-line bg-gray-50 rounded p-3"><%= item.data.dig("draft", "body") %></div>
+      </div>
+
+      <%# Edit mode (hidden by default) %>
+      <div data-inline-edit-target="form" class="hidden">
+        <%= form_tag pipeline_item_path(pipeline, item), method: :patch, data: { turbo_frame: dom_id(item) } do %>
+          <div class="mb-2">
+            <label class="block text-xs font-medium text-gray-500 mb-1">Betreff</label>
+            <%= text_field_tag :subject, item.data.dig("draft", "subject"),
+              class: "w-full border rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" %>
+          </div>
+          <div class="mb-2">
+            <label class="block text-xs font-medium text-gray-500 mb-1">Body</label>
+            <%= text_area_tag :body, item.data.dig("draft", "body"),
+              rows: 8,
+              class: "w-full border rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" %>
+          </div>
+          <div class="flex gap-2">
+            <%= submit_tag "Speichern", class: "bg-blue-600 text-white px-3 py-1.5 rounded text-sm hover:bg-blue-700 cursor-pointer" %>
+            <button type="button" data-action="inline-edit#cancel" class="bg-gray-200 text-gray-700 px-3 py-1.5 rounded text-sm hover:bg-gray-300">Abbrechen</button>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <%# Action Buttons %>
+  <% if item.status == "review" %>
+    <div class="flex items-center gap-2 pt-2 border-t border-gray-100">
+      <%= button_to "Approve", approve_pipeline_item_path(pipeline, item),
+        class: "bg-green-600 text-white px-4 py-1.5 rounded text-sm font-medium hover:bg-green-700" %>
+      <%= button_to "Skip", skip_pipeline_item_path(pipeline, item),
+        class: "bg-gray-200 text-gray-700 px-4 py-1.5 rounded text-sm font-medium hover:bg-gray-300" %>
+      <% if item.data["draft"].present? %>
+        <button type="button" data-action="inline-edit#toggle" class="bg-blue-100 text-blue-700 px-4 py-1.5 rounded text-sm font-medium hover:bg-blue-200">Edit</button>
+      <% end %>
+    </div>
+  <% elsif item.status == "approved" %>
+    <div class="flex items-center gap-2 pt-2 border-t border-gray-100">
+      <%= button_to "Zurücksetzen", reset_pipeline_item_path(pipeline, item),
+        class: "bg-gray-200 text-gray-700 px-3 py-1.5 rounded text-sm hover:bg-gray-300" %>
+    </div>
+  <% elsif item.status == "rejected" %>
+    <div class="flex items-center gap-2 pt-2 border-t border-gray-100">
+      <%= button_to "Zurücksetzen", reset_pipeline_item_path(pipeline, item),
+        class: "bg-gray-200 text-gray-700 px-3 py-1.5 rounded text-sm hover:bg-gray-300" %>
+    </div>
+  <% end %>
+</div>

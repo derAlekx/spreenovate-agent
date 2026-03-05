@@ -1,67 +1,72 @@
-<div class="max-w-4xl mx-auto p-6">
-  <h1 class="text-2xl font-bold mb-2"><%= @pipeline.name %></h1>
-  <p class="text-gray-500 mb-6">Projekt: <%= link_to @pipeline.project.name, @pipeline.project, class: "text-blue-600 hover:underline" %></p>
+<div class="max-w-4xl mx-auto p-6 bg-gray-50 min-h-screen">
+  <%# Header %>
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <p class="text-sm text-gray-500">
+        <%= link_to "Projects", projects_path, class: "hover:text-gray-700" %> /
+        <%= link_to @pipeline.project.name, project_path(@pipeline.project), class: "hover:text-gray-700" %>
+      </p>
+      <h1 class="text-2xl font-bold text-gray-900"><%= @pipeline.name %></h1>
+    </div>
+    <div class="bg-white border rounded-lg p-3 shadow-sm">
+      <h2 class="text-xs font-medium text-gray-500 mb-1">CSV Import</h2>
+      <%= form_tag import_csv_pipeline_path(@pipeline), multipart: true, class: "flex items-center gap-2" do %>
+        <%= file_field_tag :csv_file, accept: ".csv", class: "text-sm w-48" %>
+        <%= submit_tag "Importieren", class: "bg-blue-600 text-white px-3 py-1.5 rounded text-sm hover:bg-blue-700 cursor-pointer" %>
+      <% end %>
+    </div>
+  </div>
 
-  <%# Import-Formular %>
-  <div class="bg-gray-50 border rounded-lg p-4 mb-6">
-    <h2 class="font-semibold mb-2">CSV Import</h2>
-    <%= form_tag import_csv_pipeline_path(@pipeline), multipart: true, class: "flex items-center gap-4" do %>
-      <%= file_field_tag :csv_file, accept: ".csv", class: "text-sm" %>
-      <%= submit_tag "Importieren", class: "bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 cursor-pointer" %>
+  <%# Status Bar %>
+  <%= turbo_frame_tag "status_bar" do %>
+    <%= render partial: "pipelines/status_bar", locals: { pipeline: @pipeline } %>
+  <% end %>
+
+  <%# Filter Tabs %>
+  <div class="flex gap-1 mb-6">
+    <% filters = [
+      ["Alle", "all"],
+      ["Review", "review"],
+      ["Approved", "approved"],
+      ["Skipped", "skipped"],
+      ["Pending", "pending"],
+      ["Sent", "sent"]
+    ] %>
+    <% filters.each do |label, value| %>
+      <%= link_to label, pipeline_path(@pipeline, filter: value),
+        class: "px-3 py-1.5 rounded-md text-sm font-medium #{@filter == value ? 'bg-gray-900 text-white' : 'bg-white text-gray-600 hover:bg-gray-100 border'}" %>
     <% end %>
   </div>
 
-  <%# Steps-Übersicht %>
-  <div class="flex gap-2 mb-6 flex-wrap">
-    <% @steps.each do |step| %>
-      <div class="bg-white border rounded px-3 py-1 text-sm">
-        <span class="font-mono text-gray-400"><%= step.position %>.</span>
-        <%= step.name %>
-        <span class="text-gray-400 text-xs">(<%= step.step_type %>)</span>
+  <%# Bulk Actions (only on review tab) %>
+  <% if @filter == "review" && @items.any? %>
+    <div class="flex gap-2 mb-4">
+      <%= button_to "Alle approven", bulk_approve_pipeline_items_path(@pipeline, filter: @filter),
+        class: "bg-green-600 text-white px-3 py-1.5 rounded text-sm hover:bg-green-700",
+        data: { turbo_confirm: "Alle #{@items.count} Items approven?" } %>
+    </div>
+  <% end %>
+
+  <% if %w[approved skipped].include?(@filter) && @items.any? %>
+    <div class="flex gap-2 mb-4">
+      <%= button_to "Alle zurücksetzen", bulk_reset_pipeline_items_path(@pipeline, filter: @filter),
+        class: "bg-gray-200 text-gray-700 px-3 py-1.5 rounded text-sm hover:bg-gray-300",
+        data: { turbo_confirm: "Alle Items zurück auf Review setzen?" } %>
+    </div>
+  <% end %>
+
+  <%# Item Cards %>
+  <div class="space-y-4">
+    <% @items.each do |item| %>
+      <%= turbo_frame_tag dom_id(item) do %>
+        <%= render partial: "pipeline_items/item_card", locals: { item: item, pipeline: @pipeline } %>
+      <% end %>
+    <% end %>
+
+    <% if @items.empty? %>
+      <div class="bg-white border rounded-lg shadow-sm p-8 text-center text-gray-400">
+        Keine Items mit Status "<%= @filter %>".
       </div>
     <% end %>
   </div>
-
-  <%# Items-Tabelle %>
-  <h2 class="font-semibold mb-2">Items (<%= @items.count %>)</h2>
-
-  <% if @items.any? %>
-    <table class="w-full border-collapse">
-      <thead>
-        <tr class="bg-gray-100 text-left text-sm">
-          <th class="p-2 border">Name</th>
-          <th class="p-2 border">Company</th>
-          <th class="p-2 border">Status</th>
-          <th class="p-2 border">Step</th>
-        </tr>
-      </thead>
-      <tbody>
-        <% @items.each do |item| %>
-          <tr class="hover:bg-gray-50">
-            <td class="p-2 border">
-              <%= link_to item.data["name"] || "---", item_path(item), class: "text-blue-600 hover:underline" %>
-            </td>
-            <td class="p-2 border"><%= item.data["company"] || "---" %></td>
-            <td class="p-2 border">
-              <span class="inline-block px-2 py-0.5 rounded text-xs font-medium
-                <%= case item.status
-                    when 'pending' then 'bg-gray-200 text-gray-700'
-                    when 'processing' then 'bg-yellow-100 text-yellow-800'
-                    when 'review' then 'bg-blue-100 text-blue-800'
-                    when 'approved', 'done' then 'bg-green-100 text-green-800'
-                    when 'sent' then 'bg-emerald-100 text-emerald-800'
-                    when 'failed' then 'bg-red-100 text-red-800'
-                    else 'bg-gray-100'
-                    end %>">
-                <%= item.status %>
-              </span>
-            </td>
-            <td class="p-2 border text-sm text-gray-500"><%= item.current_step&.name || "---" %></td>
-          </tr>
-        <% end %>
-      </tbody>
-    </table>
-  <% else %>
-    <p class="text-gray-400">Keine Items. CSV importieren um zu starten.</p>
-  <% end %>
 </div>

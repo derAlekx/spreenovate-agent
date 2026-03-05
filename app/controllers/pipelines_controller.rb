@@ -1,8 +1,18 @@
 class PipelinesController < ApplicationController
   def show
     @pipeline = Pipeline.find(params[:id])
-    @items = @pipeline.items.includes(:current_step).order(created_at: :desc)
     @steps = @pipeline.pipeline_steps.order(:position)
+    @filter = params[:filter] || "review"
+
+    @items = @pipeline.items.includes(:current_step).order(created_at: :desc)
+    @items = case @filter
+             when "review"   then @items.where(status: "review")
+             when "approved" then @items.where(status: "approved")
+             when "skipped"  then @items.where(status: "rejected")
+             when "sent"     then @items.where(status: "sent")
+             when "pending"  then @items.where(status: "pending")
+             else @items
+             end
   end
 
   def import_csv
