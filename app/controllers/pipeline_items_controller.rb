@@ -1,6 +1,6 @@
 class PipelineItemsController < ApplicationController
   before_action :set_pipeline
-  before_action :set_item, only: [:show, :update, :approve, :skip, :reset]
+  before_action :set_item, only: [:show, :update, :approve, :skip, :reset, :retry]
 
   def show
     redirect_to pipeline_path(@pipeline, anchor: dom_id(@item))
@@ -38,6 +38,15 @@ class PipelineItemsController < ApplicationController
     respond_to do |format|
       format.turbo_stream
       format.html { redirect_to pipeline_path(@pipeline) }
+    end
+  end
+
+  def retry
+    @item.update!(status: "pending")
+    ProcessItemJob.perform_later(@item.id)
+    respond_to do |format|
+      format.turbo_stream
+      format.html { redirect_to pipeline_path(@pipeline), notice: "Item wird erneut verarbeitet." }
     end
   end
 

@@ -6,11 +6,13 @@ class PipelinesController < ApplicationController
 
     @items = @pipeline.items.includes(:current_step).order(created_at: :desc)
     @items = case @filter
-             when "review"   then @items.where(status: "review")
-             when "approved" then @items.where(status: "approved")
-             when "skipped"  then @items.where(status: "rejected")
-             when "sent"     then @items.where(status: "sent")
-             when "pending"  then @items.where(status: "pending")
+             when "review"     then @items.where(status: "review")
+             when "processing" then @items.where(status: "processing")
+             when "approved"   then @items.where(status: "approved")
+             when "skipped"    then @items.where(status: "rejected")
+             when "sent"       then @items.where(status: "sent")
+             when "pending"    then @items.where(status: "pending")
+             when "failed"     then @items.where(status: "failed")
              else @items
              end
   end

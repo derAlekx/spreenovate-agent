@@ -19,7 +19,13 @@ class Item < ApplicationRecord
     current_index = steps.index(current_step)
     next_step = steps[current_index + 1] if current_index
     if next_step
-      update!(current_step: next_step, status: "pending")
+      if next_step.step_type == "human_review"
+        # Human Review: Status direkt auf "review" setzen
+        update!(current_step: next_step, status: "review")
+      else
+        update!(current_step: next_step, status: "pending")
+        ProcessItemJob.perform_later(id)
+      end
     else
       update!(current_step: nil, status: "done")
     end

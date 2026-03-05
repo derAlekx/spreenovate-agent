@@ -12,6 +12,7 @@ Rails.application.routes.draw do
         post :approve
         post :skip
         post :reset
+        post :retry
       end
       collection do
         post :bulk_approve

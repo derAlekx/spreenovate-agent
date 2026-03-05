@@ -1,5 +1,16 @@
+# Credential: Anthropic API Key
+credential = Credential.find_or_create_by!(key: "anthropic_api_key") do |c|
+  c.value = ENV.fetch("ANTHROPIC_API_KEY", "sk-ant-PLACEHOLDER")
+  c.description = "Claude API Key (Hauptaccount)"
+end
+
 project = Project.find_or_create_by!(name: "spreenovate") do |p|
   p.settings = { "timezone" => "Europe/Berlin" }
+end
+
+# Projekt-Credential-Zuordnung
+ProjectCredential.find_or_create_by!(project: project, role: "ai_api_key") do |pc|
+  pc.credential = credential
 end
 
 pipeline = project.pipelines.find_or_create_by!(slug: "cold-emailing") do |p|
@@ -9,8 +20,8 @@ end
 if pipeline.pipeline_steps.empty?
   pipeline.pipeline_steps.create!([
     { name: "Import",   step_type: "csv_import",    position: 1, config: {} },
-    { name: "Research", step_type: "ai_agent",      position: 2, config: { "model" => "claude-opus-4-6-20250219", "task" => "research", "enable_web_search" => true } },
-    { name: "Draft",    step_type: "ai_agent",      position: 3, config: { "model" => "claude-opus-4-6-20250219", "task" => "draft", "uses_memory" => true } },
+    { name: "Research", step_type: "ai_agent",      position: 2, config: { "model" => "claude-sonnet-4-20250514", "task" => "research", "enable_web_search" => true } },
+    { name: "Draft",    step_type: "ai_agent",      position: 3, config: { "model" => "claude-sonnet-4-20250514", "task" => "draft", "uses_memory" => true } },
     { name: "Review",   step_type: "human_review",  position: 4, config: {} },
     { name: "Send",     step_type: "send_email",    position: 5, config: { "from_address" => "alexander@spreenovate.de" } }
   ])

@@ -38,5 +38,10 @@ module ObjectiveBooth
 
     # Don't generate system test files.
     config.generators.system_tests = nil
+
+    # ActiveRecord Encryption
+    config.active_record.encryption.primary_key = ENV.fetch("ACTIVE_RECORD_ENCRYPTION_PRIMARY_KEY", "EbsR4r1goKqojJ4llsJUJWqe8KSYYHGf")
+    config.active_record.encryption.deterministic_key = ENV.fetch("ACTIVE_RECORD_ENCRYPTION_DETERMINISTIC_KEY", "CCorAL7MJcUsTI6Iio72zPg8ygGm5ssj")
+    config.active_record.encryption.key_derivation_salt = ENV.fetch("ACTIVE_RECORD_ENCRYPTION_KEY_DERIVATION_SALT", "uJ3XqUwoi9UW57hYlsbPt1K6AroJhxBE")
   end
 end

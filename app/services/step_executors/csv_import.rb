@@ -30,6 +30,9 @@ module StepExecutors
           note: "CSV Import"
         )
 
+        # Trigger processing through the pipeline
+        ProcessItemJob.perform_later(item.id)
+
         imported += 1
       end
 
