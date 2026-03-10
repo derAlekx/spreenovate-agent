@@ -1,6 +1,6 @@
 class PipelineItemsController < ApplicationController
   before_action :set_pipeline
-  before_action :set_item, only: [:show, :update, :approve, :skip, :reset, :retry, :send_email]
+  before_action :set_item, only: [:show, :update, :approve, :skip, :reset, :retry, :redraft, :send_email]
 
   def show
     redirect_to pipeline_path(@pipeline, anchor: dom_id(@item))
@@ -47,6 +47,19 @@ class PipelineItemsController < ApplicationController
     respond_to do |format|
       format.turbo_stream
       format.html { redirect_to pipeline_path(@pipeline), notice: "Item wird erneut verarbeitet." }
+    end
+  end
+
+  def redraft
+    draft_step = @pipeline.pipeline_steps.find_by(step_type: "ai_agent", config: PipelineStep.arel_table[:config].matches('%"task":"draft"%'))
+    draft_step ||= @pipeline.pipeline_steps.find_by(name: "Draft")
+
+    @item.update!(status: "processing", current_step: draft_step)
+    RedraftJob.perform_later(@item.id)
+
+    respond_to do |format|
+      format.turbo_stream
+      format.html { redirect_to pipeline_path(@pipeline), notice: "Neue Version wird erstellt..." }
     end
   end
 

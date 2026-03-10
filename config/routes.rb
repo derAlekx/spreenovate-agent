@@ -29,6 +29,7 @@ Rails.application.routes.draw do
         post :skip
         post :reset
         post :retry
+        post :redraft
         post :send_email
       end
       collection do

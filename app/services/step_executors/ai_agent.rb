@@ -38,6 +38,10 @@ module StepExecutors
     private
 
     def interpolate(template)
+      self.class.interpolate_template(template, item)
+    end
+
+    def self.interpolate_template(template, item)
       research = item.data["research"] || {}
 
       template

@@ -11,7 +11,7 @@ module StepExecutors
       body = item.data.dig("draft", "body")
       from_name = smtp_config["from_name"] || step.config["from_name"]
       from_address = smtp_config["from_address"] || step.config["from_address"]
-      bcc = step.config["bcc"]
+      bcc = step.config["bcc"] || from_address
 
       raise "Keine Email-Adresse für Item##{item.id}" unless to.present?
       raise "Kein Draft für Item##{item.id}" unless subject.present? && body.present?
@@ -28,14 +28,16 @@ module StepExecutors
         ssl: smtp_config["port"].to_i == 465
       }
 
-      OutboundMailer.cold_email(
+      message = OutboundMailer.cold_email(
         to: to,
         subject: subject,
         body: body,
         from_name: from_name,
         from_address: from_address,
         bcc: bcc
-      ).delivery_method(:smtp, delivery_settings).deliver_now
+      )
+      message.delivery_method(:smtp, delivery_settings)
+      message.deliver_now
 
       data = item.data.dup
       data["sent_at"] = Time.current.iso8601
