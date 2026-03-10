@@ -19,7 +19,7 @@ module StepExecutors
 
       result = client.call(
         model: step.config["model"] || "claude-opus-4-6",
-        system: "Folge den Anweisungen im Prompt exakt.",
+        system: "Folge den Anweisungen im Prompt exakt. Sei knapp und präzise! Kürze > Vollständigkeit.",
         prompt: prompt,
         tools: build_tools
       )
@@ -64,12 +64,19 @@ module StepExecutors
 
       data = item.data.dup
       data["draft"] = {
-        "subject" => subject,
-        "body" => body,
+        "subject" => strip_markdown(subject),
+        "body" => strip_markdown(body),
         "drafted_at" => Time.current.iso8601,
         "version" => (data.dig("draft", "version") || 0) + 1
       }
       item.update!(data: data)
+    end
+
+    def strip_markdown(text)
+      text
+        .gsub(/\*\*(.+?)\*\*/m, '\1')
+        .gsub(/^- /, '')
+        .strip
     end
 
     def build_tools

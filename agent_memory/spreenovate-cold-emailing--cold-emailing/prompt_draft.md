@@ -1,6 +1,6 @@
 # Email Draft Prompt
 
-Schreibe eine personalisierte Cold-Email auf Deutsch.
+Schreibe eine personalisierte Cold-Email auf Deutsch. Max 3–4 Sätze im Body. Kurz.
 
 ## Empfänger
 
@@ -52,11 +52,11 @@ Nutze diese, um den richtigen Nerv zu treffen — nicht als Checkliste, sondern 
 ## Regeln
 
 - Sprache: Deutsch
-- Max 3–4 Sätze im Body
+- Max 3–4 kurze Sätze im Body, nicht mehr
 - Kurze, neugierig machende Subject Line (keine Clickbait-Tricks)
 - Keine klassischen KI Sprachfloskeln, echte und ehrliche Sprache
 - Ziel: Website-Besuch (Link-Klick auf https://spreenovate.de), KEIN Call
-- Plain Text, kein HTML
+- Plain Text — kein HTML, kein Markdown, keine Sternchen, keine Formatierung. Nur reiner Text.
 - Jede Email muss sich deutlich anders anfühlen als die anderen
 - Absender: Alexander Kamphorst (Unterschrift "Beste Grüße, Alexander Kamphorst")
 

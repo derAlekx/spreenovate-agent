@@ -32,4 +32,4 @@ Besonders relevante Anknüpfungspunkte:
 
 ## Output
 
-4–8 knappe Sätze. Kein Bullshit, nur was für eine personalisierte Email nützlich ist. Wenn du nichts Relevantes findest, sag das — lieber ehrlich als aufgeblasen.
+3–6 knappe Sätze. Kein Bullshit, nur was für eine personalisierte Email nützlich ist. Wenn du nichts Relevantes findest, sag das — lieber ehrlich als aufgeblasen.
