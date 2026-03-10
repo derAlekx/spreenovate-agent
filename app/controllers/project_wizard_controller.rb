@@ -55,7 +55,8 @@ class ProjectWizardController < ApplicationController
     steps = []
     (params[:steps] || []).each_with_index do |s, i|
       next if s[:name].blank? || s[:step_type].blank?
-      steps << { "name" => s[:name], "step_type" => s[:step_type], "position" => i + 1, "config" => {} }
+      config = s[:config].present? ? JSON.parse(s[:config]) rescue {} : {}
+      steps << { "name" => s[:name], "step_type" => s[:step_type], "position" => i + 1, "config" => config }
     end
     session[:project_wizard]["pipeline_steps"] = steps
     session[:project_wizard]["step"] = 4

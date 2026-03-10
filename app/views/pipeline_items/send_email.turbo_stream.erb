@@ -1,0 +1,7 @@
+<%= turbo_stream.replace dom_id(@item) do %>
+  <%= render partial: "pipeline_items/item_card", locals: { item: @item, pipeline: @pipeline } %>
+<% end %>
+
+<%= turbo_stream.replace "status_bar" do %>
+  <%= render partial: "pipelines/status_bar", locals: { pipeline: @pipeline } %>
+<% end %>

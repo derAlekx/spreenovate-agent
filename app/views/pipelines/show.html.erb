@@ -8,12 +8,23 @@
       </p>
       <h1 class="text-2xl font-bold text-gray-900"><%= @pipeline.name %></h1>
     </div>
-    <div class="bg-white border rounded-lg p-3 shadow-sm">
-      <h2 class="text-xs font-medium text-gray-500 mb-1">CSV Import</h2>
-      <%= form_tag import_csv_pipeline_path(@pipeline), multipart: true, class: "flex items-center gap-2" do %>
-        <%= file_field_tag :csv_file, accept: ".csv", class: "text-sm w-48" %>
-        <%= submit_tag "Importieren", class: "bg-blue-600 text-white px-3 py-1.5 rounded text-sm hover:bg-blue-700 cursor-pointer" %>
+    <div class="flex items-center gap-3">
+      <% approved_count = @pipeline.items.where(status: "approved").count %>
+      <% if approved_count > 0 %>
+        <%= button_to "Testmail", test_send_pipeline_path(@pipeline),
+          class: "bg-gray-200 text-gray-700 px-3 py-1.5 rounded text-sm hover:bg-gray-300",
+          data: { turbo_confirm: "Testmail an eigene Adresse senden?" } %>
+        <%= button_to "#{approved_count} Emails senden", bulk_send_pipeline_path(@pipeline),
+          class: "bg-emerald-600 text-white px-3 py-1.5 rounded text-sm hover:bg-emerald-700",
+          data: { turbo_confirm: "#{approved_count} Emails jetzt senden?" } %>
       <% end %>
+      <div class="bg-white border rounded-lg p-3 shadow-sm">
+        <h2 class="text-xs font-medium text-gray-500 mb-1">CSV Import</h2>
+        <%= form_tag import_csv_pipeline_path(@pipeline), multipart: true, class: "flex items-center gap-2" do %>
+          <%= file_field_tag :csv_file, accept: ".csv", class: "text-sm w-48" %>
+          <%= submit_tag "Importieren", class: "bg-blue-600 text-white px-3 py-1.5 rounded text-sm hover:bg-blue-700 cursor-pointer" %>
+        <% end %>
+      </div>
     </div>
   </div>
 

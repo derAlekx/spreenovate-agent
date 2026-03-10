@@ -1,0 +1,48 @@
+<div class="max-w-xl">
+  <h1 class="text-2xl font-bold mb-6">
+    <%= @project.name %> — Credential-Zuordnung
+  </h1>
+
+  <%= form_tag project_path(@project), method: :patch do %>
+    <div class="bg-white border rounded-lg p-6 space-y-4">
+      <p class="text-sm text-gray-500 mb-4">
+        Ordne globale Credentials den Rollen dieses Projekts zu. Credentials werden unter
+        <%= link_to "Credentials", credentials_path, class: "text-blue-600 hover:text-blue-800" %> verwaltet.
+      </p>
+
+      <% @roles.each do |role| %>
+        <% current_pc = @project.project_credentials.find_by(role: role) %>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">
+            <%= case role
+                when "ai_api_key" then "AI API Key"
+                when "search_api_key" then "Search API Key"
+                when "smtp" then "SMTP Server"
+                else role.humanize
+                end %>
+          </label>
+          <select name="credential_assignments[<%= role %>]"
+            class="w-full border rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+            <option value="">— nicht zugewiesen —</option>
+            <% @credentials.each do |credential| %>
+              <option value="<%= credential.id %>"
+                <%= "selected" if current_pc&.credential_id == credential.id %>>
+                <%= credential.key %>
+                <% if credential.description.present? %>
+                  (<%= credential.description %>)
+                <% end %>
+              </option>
+            <% end %>
+          </select>
+        </div>
+      <% end %>
+
+      <div class="flex gap-2 pt-4 border-t">
+        <%= submit_tag "Speichern",
+          class: "bg-blue-600 text-white px-4 py-2 rounded text-sm hover:bg-blue-700 cursor-pointer" %>
+        <%= link_to "Abbrechen", project_path(@project),
+          class: "bg-gray-200 text-gray-700 px-4 py-2 rounded text-sm hover:bg-gray-300" %>
+      </div>
+    </div>
+  <% end %>
+</div>

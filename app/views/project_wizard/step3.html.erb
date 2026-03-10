@@ -4,25 +4,53 @@
   <div class="bg-white border rounded-lg p-6">
     <h2 class="text-xl font-bold mb-4">Pipeline konfigurieren</h2>
 
+    <% templates = {
+      "cold_emailing" => {
+        name: "Cold Emailing",
+        steps: [
+          { name: "Import", type: "csv_import", config: {} },
+          { name: "Research", type: "ai_agent", config: { task: "research", enable_web_search: true } },
+          { name: "Draft", type: "ai_agent", config: { task: "draft" } },
+          { name: "Review", type: "human_review", config: {} },
+          { name: "Send", type: "send_email", config: {} }
+        ]
+      }
+    } %>
+
     <%= form_tag wizard_save_step3_projects_path, method: :post do %>
-      <div class="mb-6">
-        <label class="block text-sm font-medium text-gray-700 mb-1">Pipeline Name *</label>
-        <%= text_field_tag :pipeline_name, @wizard.dig("pipeline", "name"),
-          class: "w-full border rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500",
-          required: true, placeholder: "z.B. Cold Emailing" %>
-        <p class="text-xs text-gray-400 mt-1">Slug wird automatisch generiert.</p>
-      </div>
+      <div data-controller="pipeline-steps"
+           data-pipeline-steps-templates-value="<%= templates.to_json %>">
 
-      <h3 class="text-sm font-semibold text-gray-700 mb-3">Pipeline Steps</h3>
+        <div class="mb-6">
+          <label class="block text-sm font-medium text-gray-700 mb-1">Vorlage</label>
+          <select data-action="pipeline-steps#applyTemplate"
+            class="w-full border rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-500">
+            <option value="">-- Keine Vorlage --</option>
+            <% templates.each do |key, tpl| %>
+              <option value="<%= key %>"><%= tpl[:name] %></option>
+            <% end %>
+          </select>
+          <p class="text-xs text-gray-400 mt-1">Vorlage auswählen um Steps automatisch zu befüllen.</p>
+        </div>
 
-      <div data-controller="pipeline-steps">
+        <div class="mb-6">
+          <label class="block text-sm font-medium text-gray-700 mb-1">Pipeline Name *</label>
+          <%= text_field_tag :pipeline_name, @wizard.dig("pipeline", "name"),
+            class: "w-full border rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500",
+            required: true, placeholder: "z.B. Cold Emailing",
+            data: { pipeline_steps_target: "pipelineName" } %>
+          <p class="text-xs text-gray-400 mt-1">Slug wird automatisch generiert.</p>
+        </div>
+
+        <h3 class="text-sm font-semibold text-gray-700 mb-3">Pipeline Steps</h3>
         <div data-pipeline-steps-target="container" class="space-y-3">
-          <% steps = @wizard["pipeline_steps"].presence || [{ "name" => "", "step_type" => "", "position" => 1 }] %>
+          <% steps = @wizard["pipeline_steps"].presence || [{ "name" => "", "step_type" => "", "position" => 1, "config" => {} }] %>
           <% steps.each_with_index do |step, index| %>
             <%= render "project_wizard/pipeline_step_row",
               index: index,
               step_name: step["name"],
-              step_type: step["step_type"] %>
+              step_type: step["step_type"],
+              step_config: step["config"] || {} %>
           <% end %>
         </div>
 
@@ -36,7 +64,8 @@
           <%= render "project_wizard/pipeline_step_row",
             index: "INDEX",
             step_name: "",
-            step_type: "" %>
+            step_type: "",
+            step_config: {} %>
         </template>
       </div>
 

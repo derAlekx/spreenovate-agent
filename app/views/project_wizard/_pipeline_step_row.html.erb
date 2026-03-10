@@ -1,4 +1,12 @@
-<%# locals: (index:, step_name:, step_type:) %>
+<%# locals: (index:, step_name:, step_type:, step_config: {}) %>
+<% step_type_labels = {
+  "csv_import" => "CSV Import",
+  "ai_agent" => "AI Agent",
+  "human_review" => "Human Review",
+  "send_email" => "Email senden",
+  "api_pull" => "API Pull",
+  "webhook" => "Webhook"
+} %>
 <div class="flex items-center gap-3 bg-gray-50 rounded p-3" data-pipeline-steps-target="row">
   <span class="text-gray-400 text-sm font-mono w-6 text-center" data-pipeline-steps-target="position">
     <%= index.is_a?(Integer) ? index + 1 : "#" %>
@@ -14,9 +22,12 @@
     required>
     <option value="">-- Typ --</option>
     <% PipelineStep::VALID_STEP_TYPES.each do |t| %>
-      <option value="<%= t %>" <%= 'selected' if step_type == t %>><%= t %></option>
+      <option value="<%= t %>" <%= 'selected' if step_type == t %>><%= step_type_labels[t] || t %></option>
     <% end %>
   </select>
+
+  <input type="hidden" name="steps[][config]" value="<%= step_config.to_json %>"
+    data-pipeline-steps-target="config">
 
   <button type="button"
     data-action="pipeline-steps#remove"

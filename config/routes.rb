@@ -20,6 +20,8 @@ Rails.application.routes.draw do
   resources :pipelines, only: [:show] do
     member do
       post :import_csv
+      post :bulk_send
+      post :test_send
     end
     resources :items, only: [:show, :update], controller: "pipeline_items" do
       member do
@@ -27,6 +29,7 @@ Rails.application.routes.draw do
         post :skip
         post :reset
         post :retry
+        post :send_email
       end
       collection do
         post :bulk_approve

@@ -17,6 +17,61 @@ class PipelinesController < ApplicationController
              end
   end
 
+  def bulk_send
+    @pipeline = Pipeline.find(params[:id])
+    send_step = @pipeline.pipeline_steps.find_by(step_type: "send_email")
+    items = @pipeline.items.where(status: "approved")
+
+    items.find_each do |item|
+      item.update!(current_step: send_step, status: "pending")
+      ProcessItemJob.perform_later(item.id)
+    end
+
+    redirect_to pipeline_path(@pipeline),
+      notice: "#{items.count} Emails werden gesendet..."
+  end
+
+  def test_send
+    @pipeline = Pipeline.find(params[:id])
+    item = @pipeline.items.where(status: "approved").first
+
+    unless item
+      redirect_to pipeline_path(@pipeline), alert: "Kein approved Item für Testmail vorhanden."
+      return
+    end
+
+    project = @pipeline.project
+    smtp_config = JSON.parse(project.credential_for("smtp") || "{}")
+
+    unless smtp_config["from_address"].present?
+      redirect_to pipeline_path(@pipeline), alert: "Keine SMTP-Credentials konfiguriert."
+      return
+    end
+
+    test_address = smtp_config["from_address"]
+
+    OutboundMailer.cold_email(
+      to: test_address,
+      subject: "[TEST] #{item.data.dig('draft', 'subject')}",
+      body: item.data.dig("draft", "body"),
+      from_name: smtp_config["from_name"] || "Test",
+      from_address: smtp_config["from_address"]
+    ).delivery_method(:smtp, {
+      address: smtp_config["host"],
+      port: smtp_config["port"].to_i,
+      user_name: smtp_config["user"],
+      password: smtp_config["password"],
+      authentication: :login,
+      enable_starttls_auto: smtp_config["port"].to_i != 465,
+      ssl: smtp_config["port"].to_i == 465
+    }).deliver_now
+
+    redirect_to pipeline_path(@pipeline),
+      notice: "Testmail gesendet an #{test_address}"
+  rescue => e
+    redirect_to pipeline_path(@pipeline), alert: "Testmail fehlgeschlagen: #{e.message}"
+  end
+
   def import_csv
     @pipeline = Pipeline.find(params[:id])
 

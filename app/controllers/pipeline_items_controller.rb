@@ -1,6 +1,6 @@
 class PipelineItemsController < ApplicationController
   before_action :set_pipeline
-  before_action :set_item, only: [:show, :update, :approve, :skip, :reset, :retry]
+  before_action :set_item, only: [:show, :update, :approve, :skip, :reset, :retry, :send_email]
 
   def show
     redirect_to pipeline_path(@pipeline, anchor: dom_id(@item))
@@ -60,6 +60,23 @@ class PipelineItemsController < ApplicationController
     respond_to do |format|
       format.turbo_stream
       format.html { redirect_to pipeline_path(@pipeline) }
+    end
+  end
+
+  def send_email
+    send_step = @pipeline.pipeline_steps.find_by(step_type: "send_email")
+
+    unless @item.status == "approved"
+      redirect_to pipeline_path(@pipeline), alert: "Nur approved Items können gesendet werden."
+      return
+    end
+
+    @item.update!(current_step: send_step)
+    ProcessItemJob.perform_later(@item.id)
+
+    respond_to do |format|
+      format.turbo_stream
+      format.html { redirect_to pipeline_path(@pipeline), notice: "Email wird gesendet..." }
     end
   end
 
