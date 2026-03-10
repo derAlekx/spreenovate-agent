@@ -21,14 +21,17 @@ class PipelinesController < ApplicationController
     @pipeline = Pipeline.find(params[:id])
     send_step = @pipeline.pipeline_steps.find_by(step_type: "send_email")
     items = @pipeline.items.where(status: "approved")
+    items = items.limit(params[:limit].to_i) if params[:limit].present? && params[:limit].to_i > 0
 
+    count = 0
     items.find_each do |item|
       item.update!(current_step: send_step, status: "pending")
       ProcessItemJob.perform_later(item.id)
+      count += 1
     end
 
     redirect_to pipeline_path(@pipeline),
-      notice: "#{items.count} Emails werden gesendet..."
+      notice: "#{count} Emails werden gesendet..."
   end
 
   def test_send

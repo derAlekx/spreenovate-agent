@@ -14,9 +14,12 @@
         <%= button_to "Testmail", test_send_pipeline_path(@pipeline),
           class: "bg-gray-200 text-gray-700 px-3 py-1.5 rounded text-sm hover:bg-gray-300",
           data: { turbo_confirm: "Testmail an eigene Adresse senden?" } %>
-        <%= button_to "#{approved_count} Emails senden", bulk_send_pipeline_path(@pipeline),
-          class: "bg-emerald-600 text-white px-3 py-1.5 rounded text-sm hover:bg-emerald-700",
-          data: { turbo_confirm: "#{approved_count} Emails jetzt senden?" } %>
+        <%= form_tag bulk_send_pipeline_path(@pipeline), method: :post, class: "flex items-center gap-1", data: { controller: "bulk-send" } do %>
+          <%= number_field_tag :limit, [5, approved_count].min, min: 1, max: approved_count, class: "w-16 text-center border rounded px-2 py-1.5 text-sm", data: { bulk_send_target: "input" } %>
+          <span class="text-sm text-gray-500">/ <%= approved_count %></span>
+          <%= submit_tag "Emails senden", class: "bg-emerald-600 text-white px-3 py-1.5 rounded text-sm hover:bg-emerald-700 cursor-pointer ml-1",
+            data: { turbo_confirm: "Emails jetzt senden?", bulk_send_target: "button" } %>
+        <% end %>
       <% end %>
       <div class="bg-white border rounded-lg p-3 shadow-sm">
         <h2 class="text-xs font-medium text-gray-500 mb-1">CSV Import</h2>
