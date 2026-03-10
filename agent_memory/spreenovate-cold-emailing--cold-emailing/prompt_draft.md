@@ -21,7 +21,7 @@ Website: https://spreenovate.de
 Der zentrale Pain ist NICHT "mir fehlt ein Tool" oder "ich brauche Automatisierung". Der zentrale Pain ist:
 **Unsicherheit. Man weiß, dass KI wichtig ist, aber nicht genau was davon real ist und was Hype. Man kann nicht mitreden, nicht einschätzen, nicht entscheiden. Und je länger man wartet, desto größer wird die Lücke.**
 
-Spreenovate schließt diese Lücke. Nicht durch Schulungen oder Konzeptpapiere, sondern durch gemeinsames Arbeiten an einem echten Problem. Danach versteht man es — weil man es selbst gemacht hat.
+Spreenovate schließt diese Lücke. Nicht durch Schulungen oder Konzeptpapiere, sondern durch gemeinsames Arbeiten an einem echten Problem. Danach versteht man es — weil man die Schritte mitgegangen ist. Es geht mehr um Aufschlauen als das Ergebnis an sich.
 
 Die Email soll dieses Gefühl von "ich sollte das besser verstehen als ich es tue" triggern — ohne es direkt auszusprechen. FOMO durch eine kluge Frage, nicht durch Druck.
 
@@ -52,8 +52,8 @@ Die Email hat genau diese Absätze, jeweils durch eine Leerzeile getrennt:
 1. Anrede ("Hallo Herr/Frau ...")
 2. Hook: 1–2 Sätze. Konkreter Bezug zur Person/Firma aus dem Research.
 3. Beobachtung oder ehrliche Frage: 1 Satz. Trifft einen Nerv. Zielt auf Unsicherheit/FOMO, nicht auf fehlende Tools.
-4. Gedanke weiterspinnen: 1–2 Sätze. Den FOMO-Gedanken aus Punkt 3 zu Ende denken. KEINE Selbstbeschreibung, KEIN "wir machen X", KEIN "kein Großprojekt, kein Strategiepapier". Einfach den Gedanken landen lassen — wie eine Beobachtung unter Bekannten. Jede Email muss hier anders klingen.
-5. CTA: 1 Zeile mit Link. Drucklos, ohne Überleitung. Einfach nur der Link. ("Falls Sie neugierig sind: https://spreenovate.de")
+4. Gedanke weiterspinnen: 1–2 Sätze. Den FOMO-Gedanken aus Punkt 3 zu Ende denken. KEINE Selbstbeschreibung, KEIN "wir machen X", KEIN "kein Großprojekt, kein Strategiepapier". Einfach den Gedanken landen lassen — wie eine Beobachtung unter Bekannten. On point, ohne Überheblichkeit.
+5. CTA: 1 Zeile mit Link. Drucklos, ohne Überleitung. Einfach nur der Link. (z.B. "Falls Sie neugierig sind: https://spreenovate.de") - hier muss der Empfänger bereits überzeugt sein!
 6. Signatur ("Beste Grüße\nAlexander Kamphorst")
 
 Jeder Punkt ist ein eigener Absatz. Nicht zusammenfassen. Nicht in einen Block packen.
@@ -61,11 +61,10 @@ Jeder Punkt ist ein eigener Absatz. Nicht zusammenfassen. Nicht in einen Block p
 ## Regeln
 
 - Sprache: Deutsch
-- Kurze, neugierig machende Subject Line (keine Clickbait-Tricks)
+- Kurze, neugierig machende Subject Line (keine Clickbait-Tricks!)
 - Keine klassischen KI Sprachfloskeln, echte und ehrliche Sprache
 - Ziel: Website-Besuch (Link-Klick auf https://spreenovate.de), KEIN Call
 - Plain Text — kein HTML, kein Markdown, keine Sternchen, keine Formatierung. Nur reiner Text.
-- Jede Email muss sich deutlich anders anfühlen als die anderen
 - Absender: Alexander Kamphorst
 
 ## Gutes Beispiel für den Ton und die Struktur
