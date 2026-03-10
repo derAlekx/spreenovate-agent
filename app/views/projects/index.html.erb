@@ -1,21 +1,21 @@
 <div class="max-w-5xl mx-auto px-6 pb-12">
-  <h1 class="text-xl font-medium text-neutral-100 mb-6">Projects</h1>
+  <h1 class="text-xl font-medium text-gray-900 dark:text-neutral-100 mb-6">Projects</h1>
 
   <div class="space-y-2">
     <% @projects.each do |project| %>
-      <%= link_to project, class: "block bg-neutral-900 border border-neutral-800 rounded-xl p-4 hover:border-neutral-700 transition group" do %>
+      <%= link_to project, class: "block bg-white dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 rounded-xl p-4 hover:border-gray-300 dark:hover:border-neutral-700 transition group" do %>
         <div class="flex items-center justify-between">
           <div>
-            <span class="text-neutral-100 font-medium group-hover:text-white transition"><%= project.name %></span>
-            <span class="text-neutral-600 text-sm ml-2"><%= project.pipelines.count %> pipelines</span>
+            <span class="text-gray-900 dark:text-neutral-100 font-medium group-hover:text-black dark:group-hover:text-white transition"><%= project.name %></span>
+            <span class="text-gray-400 dark:text-neutral-600 text-sm ml-2"><%= project.pipelines.count %> pipelines</span>
           </div>
-          <span class="text-neutral-700 group-hover:text-neutral-500 transition">&rarr;</span>
+          <span class="text-gray-300 dark:text-neutral-700 group-hover:text-gray-500 dark:group-hover:text-neutral-500 transition">&rarr;</span>
         </div>
       <% end %>
     <% end %>
   </div>
 
   <% if @projects.empty? %>
-    <p class="text-neutral-600 text-sm">No projects yet.</p>
+    <p class="text-gray-400 dark:text-neutral-600 text-sm">No projects yet.</p>
   <% end %>
 </div>

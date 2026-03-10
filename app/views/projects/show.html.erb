@@ -1,18 +1,18 @@
 <div class="max-w-5xl mx-auto px-6 pb-12">
-  <h1 class="text-xl font-medium text-neutral-100 mb-1"><%= @project.name %></h1>
-  <p class="text-neutral-600 text-sm mb-8"><%= @project.settings&.to_json %></p>
+  <h1 class="text-xl font-medium text-gray-900 dark:text-neutral-100 mb-1"><%= @project.name %></h1>
+  <p class="text-gray-400 dark:text-neutral-600 text-sm mb-8"><%= @project.settings&.to_json %></p>
 
-  <h2 class="text-sm font-medium text-neutral-400 mb-3">Pipelines</h2>
+  <h2 class="text-sm font-medium text-gray-500 dark:text-neutral-400 mb-3">Pipelines</h2>
 
   <div class="space-y-2">
     <% @pipelines.each do |pipeline| %>
-      <%= link_to pipeline, class: "block bg-neutral-900 border border-neutral-800 rounded-xl p-4 hover:border-neutral-700 transition group" do %>
+      <%= link_to pipeline, class: "block bg-white dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 rounded-xl p-4 hover:border-gray-300 dark:hover:border-neutral-700 transition group" do %>
         <div class="flex items-center justify-between">
           <div>
-            <span class="text-neutral-100 font-medium group-hover:text-white transition"><%= pipeline.name %></span>
-            <span class="text-neutral-600 text-sm ml-2"><%= pipeline.pipeline_steps.count %> steps &middot; <%= pipeline.items.count %> items</span>
+            <span class="text-gray-900 dark:text-neutral-100 font-medium group-hover:text-black dark:group-hover:text-white transition"><%= pipeline.name %></span>
+            <span class="text-gray-400 dark:text-neutral-600 text-sm ml-2"><%= pipeline.pipeline_steps.count %> steps &middot; <%= pipeline.items.count %> items</span>
           </div>
-          <span class="text-neutral-700 group-hover:text-neutral-500 transition">&rarr;</span>
+          <span class="text-gray-300 dark:text-neutral-700 group-hover:text-gray-500 dark:group-hover:text-neutral-500 transition">&rarr;</span>
         </div>
       <% end %>
     <% end %>

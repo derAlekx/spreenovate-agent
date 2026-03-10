@@ -11,49 +11,49 @@
 
 <div class="flex items-center gap-6 text-sm mb-6">
   <div>
-    <span class="text-neutral-600"><%= counts[:total] %></span>
-    <span class="text-neutral-600 ml-0.5">total</span>
+    <span class="text-gray-400 dark:text-neutral-600"><%= counts[:total] %></span>
+    <span class="text-gray-400 dark:text-neutral-600 ml-0.5">total</span>
   </div>
   <div class="flex items-center gap-1.5">
     <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
-    <span class="text-neutral-500"><%= counts[:review] %></span>
-    <span class="text-neutral-600">review</span>
+    <span class="text-gray-500 dark:text-neutral-500"><%= counts[:review] %></span>
+    <span class="text-gray-400 dark:text-neutral-600">review</span>
   </div>
   <% if counts[:processing] > 0 %>
   <div class="flex items-center gap-1.5">
     <span class="w-1.5 h-1.5 rounded-full bg-blue-400"></span>
-    <span class="text-neutral-500"><%= counts[:processing] %></span>
-    <span class="text-neutral-600">processing</span>
+    <span class="text-gray-500 dark:text-neutral-500"><%= counts[:processing] %></span>
+    <span class="text-gray-400 dark:text-neutral-600">processing</span>
   </div>
   <% end %>
   <div class="flex items-center gap-1.5">
     <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-    <span class="text-neutral-500"><%= counts[:approved] %></span>
-    <span class="text-neutral-600">approved</span>
+    <span class="text-gray-500 dark:text-neutral-500"><%= counts[:approved] %></span>
+    <span class="text-gray-400 dark:text-neutral-600">approved</span>
   </div>
   <% if counts[:pending] > 0 %>
   <div class="flex items-center gap-1.5">
-    <span class="w-1.5 h-1.5 rounded-full bg-neutral-500"></span>
-    <span class="text-neutral-500"><%= counts[:pending] %></span>
-    <span class="text-neutral-600">pending</span>
+    <span class="w-1.5 h-1.5 rounded-full bg-gray-400 dark:bg-neutral-500"></span>
+    <span class="text-gray-500 dark:text-neutral-500"><%= counts[:pending] %></span>
+    <span class="text-gray-400 dark:text-neutral-600">pending</span>
   </div>
   <% end %>
   <% if counts[:failed] > 0 %>
   <div class="flex items-center gap-1.5">
     <span class="w-1.5 h-1.5 rounded-full bg-red-500"></span>
-    <span class="text-red-400"><%= counts[:failed] %></span>
-    <span class="text-neutral-600">failed</span>
+    <span class="text-red-500 dark:text-red-400"><%= counts[:failed] %></span>
+    <span class="text-gray-400 dark:text-neutral-600">failed</span>
   </div>
   <% end %>
   <div class="flex items-center gap-1.5">
     <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-    <span class="text-neutral-500"><%= counts[:sent] %></span>
-    <span class="text-neutral-600">sent</span>
+    <span class="text-gray-500 dark:text-neutral-500"><%= counts[:sent] %></span>
+    <span class="text-gray-400 dark:text-neutral-600">sent</span>
   </div>
   <% if counts[:skipped] > 0 %>
   <div class="flex items-center gap-1.5">
-    <span class="text-neutral-500"><%= counts[:skipped] %></span>
-    <span class="text-neutral-600">skipped</span>
+    <span class="text-gray-500 dark:text-neutral-500"><%= counts[:skipped] %></span>
+    <span class="text-gray-400 dark:text-neutral-600">skipped</span>
   </div>
   <% end %>
 </div>
