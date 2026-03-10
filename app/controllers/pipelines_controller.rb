@@ -40,13 +40,6 @@ class PipelinesController < ApplicationController
       notice: "#{count} Emails werden gesendet..."
   end
 
-  def update_daily_limit
-    @pipeline = Pipeline.find(params[:id])
-    @pipeline.daily_limit = params[:daily_limit]
-    @pipeline.save!
-    redirect_to pipeline_path(@pipeline), notice: "Tageslimit auf #{@pipeline.daily_limit} gesetzt."
-  end
-
   def test_send
     @pipeline = Pipeline.find(params[:id])
     item = @pipeline.items.where(status: "approved").first

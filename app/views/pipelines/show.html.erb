@@ -14,14 +14,8 @@
       <% remaining = @pipeline.remaining_sends_today %>
       <% daily_limit = @pipeline.daily_limit %>
 
-      <% can_send = approved_count > 0 && remaining > 0 %>
       <% send_count = [remaining, approved_count].min %>
-
-      <%= form_tag update_daily_limit_pipeline_path(@pipeline), method: :patch, class: "flex items-center gap-1" do %>
-        <%= number_field_tag :daily_limit, daily_limit, min: 1, max: 100, class: "w-12 text-center border rounded px-1 py-1 text-xs",
-          onchange: "this.form.requestSubmit()" %>
-        <span class="text-xs text-gray-400">/Tag</span>
-      <% end %>
+      <% can_send = send_count > 0 %>
 
       <% if approved_count > 0 %>
         <%= button_to "Testmail", test_send_pipeline_path(@pipeline),
@@ -29,9 +23,9 @@
           data: { turbo_confirm: "Testmail an eigene Adresse senden?" } %>
       <% end %>
 
-      <%= button_to "#{sent_today}/#{daily_limit} gesendet — #{can_send ? "#{send_count} senden" : "Limit erreicht"}",
+      <%= button_to "Send #{send_count}/#{daily_limit} Emails",
         bulk_send_pipeline_path(@pipeline),
-        class: "px-3 py-1.5 rounded text-sm font-medium #{can_send ? 'bg-emerald-600 text-white hover:bg-emerald-700' : 'bg-gray-200 text-gray-400 cursor-not-allowed'}",
+        class: "px-4 py-1.5 rounded text-sm font-medium #{can_send ? 'bg-emerald-600 text-white hover:bg-emerald-700' : 'bg-gray-300 text-gray-500 cursor-not-allowed'}",
         disabled: !can_send,
         data: can_send ? { turbo_confirm: "#{send_count} Emails jetzt senden?" } : {} %>
 

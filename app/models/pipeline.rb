@@ -9,11 +9,7 @@ class Pipeline < ApplicationRecord
   before_validation :generate_slug, if: -> { slug.blank? && name.present? }
 
   def daily_limit
-    config&.dig("daily_limit") || 5
-  end
-
-  def daily_limit=(value)
-    self.config = (config || {}).merge("daily_limit" => value.to_i)
+    5
   end
 
   def sent_today_count
