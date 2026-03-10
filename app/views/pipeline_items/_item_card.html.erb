@@ -123,13 +123,11 @@
     </div>
   <% elsif item.status == "approved" %>
     <div class="flex items-center gap-2 pt-2 border-t border-gray-100">
-      <% if pipeline.remaining_sends_today > 0 %>
-        <%= button_to "Senden", send_email_pipeline_item_path(pipeline, item),
-          class: "bg-emerald-600 text-white px-4 py-1.5 rounded text-sm font-medium hover:bg-emerald-700",
-          data: { turbo_confirm: "Email an #{item.data['email']} senden?" } %>
-      <% else %>
-        <span class="text-xs text-orange-600">Tageslimit erreicht</span>
-      <% end %>
+      <% can_send = pipeline.remaining_sends_today > 0 %>
+      <%= button_to "Senden", send_email_pipeline_item_path(pipeline, item),
+        class: "px-4 py-1.5 rounded text-sm font-medium #{can_send ? 'bg-emerald-600 text-white hover:bg-emerald-700' : 'bg-gray-200 text-gray-400 cursor-not-allowed'}",
+        disabled: !can_send,
+        data: can_send ? { turbo_confirm: "Email an #{item.data['email']} senden?" } : {} %>
       <%= button_to "Zurücksetzen", reset_pipeline_item_path(pipeline, item),
         class: "bg-gray-200 text-gray-700 px-3 py-1.5 rounded text-sm hover:bg-gray-300" %>
     </div>

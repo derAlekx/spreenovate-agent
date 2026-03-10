@@ -14,24 +14,26 @@
       <% remaining = @pipeline.remaining_sends_today %>
       <% daily_limit = @pipeline.daily_limit %>
 
-      <%# Daily limit setting %>
+      <% can_send = approved_count > 0 && remaining > 0 %>
+      <% send_count = [remaining, approved_count].min %>
+
       <%= form_tag update_daily_limit_pipeline_path(@pipeline), method: :patch, class: "flex items-center gap-1" do %>
-        <span class="text-xs text-gray-500">Limit/Tag:</span>
-        <%= number_field_tag :daily_limit, daily_limit, min: 1, max: 100, class: "w-14 text-center border rounded px-1 py-1.5 text-sm",
+        <%= number_field_tag :daily_limit, daily_limit, min: 1, max: 100, class: "w-12 text-center border rounded px-1 py-1 text-xs",
           onchange: "this.form.requestSubmit()" %>
+        <span class="text-xs text-gray-400">/Tag</span>
       <% end %>
 
-      <% if approved_count > 0 && remaining > 0 %>
+      <% if approved_count > 0 %>
         <%= button_to "Testmail", test_send_pipeline_path(@pipeline),
           class: "bg-gray-200 text-gray-700 px-3 py-1.5 rounded text-sm hover:bg-gray-300",
           data: { turbo_confirm: "Testmail an eigene Adresse senden?" } %>
-        <%= button_to "#{[remaining, approved_count].min} Emails senden (#{sent_today}/#{daily_limit} heute)",
-          bulk_send_pipeline_path(@pipeline),
-          class: "bg-emerald-600 text-white px-3 py-1.5 rounded text-sm hover:bg-emerald-700",
-          data: { turbo_confirm: "#{[remaining, approved_count].min} Emails jetzt senden?" } %>
-      <% elsif remaining <= 0 %>
-        <span class="text-sm text-orange-600 font-medium">Tageslimit erreicht (#{sent_today}/#{daily_limit})</span>
       <% end %>
+
+      <%= button_to "#{sent_today}/#{daily_limit} gesendet — #{can_send ? "#{send_count} senden" : "Limit erreicht"}",
+        bulk_send_pipeline_path(@pipeline),
+        class: "px-3 py-1.5 rounded text-sm font-medium #{can_send ? 'bg-emerald-600 text-white hover:bg-emerald-700' : 'bg-gray-200 text-gray-400 cursor-not-allowed'}",
+        disabled: !can_send,
+        data: can_send ? { turbo_confirm: "#{send_count} Emails jetzt senden?" } : {} %>
 
       <div class="bg-white border rounded-lg p-3 shadow-sm">
         <h2 class="text-xs font-medium text-gray-500 mb-1">CSV Import</h2>
