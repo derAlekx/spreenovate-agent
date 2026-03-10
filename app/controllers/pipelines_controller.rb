@@ -19,9 +19,15 @@ class PipelinesController < ApplicationController
 
   def bulk_send
     @pipeline = Pipeline.find(params[:id])
+    remaining = @pipeline.remaining_sends_today
+
+    if remaining <= 0
+      redirect_to pipeline_path(@pipeline), alert: "Tageslimit erreicht (#{@pipeline.daily_limit}/#{@pipeline.daily_limit})."
+      return
+    end
+
     send_step = @pipeline.pipeline_steps.find_by(step_type: "send_email")
-    items = @pipeline.items.where(status: "approved")
-    items = items.limit(params[:limit].to_i) if params[:limit].present? && params[:limit].to_i > 0
+    items = @pipeline.items.where(status: "approved").limit(remaining)
 
     count = 0
     items.find_each do |item|
@@ -32,6 +38,13 @@ class PipelinesController < ApplicationController
 
     redirect_to pipeline_path(@pipeline),
       notice: "#{count} Emails werden gesendet..."
+  end
+
+  def update_daily_limit
+    @pipeline = Pipeline.find(params[:id])
+    @pipeline.daily_limit = params[:daily_limit]
+    @pipeline.save!
+    redirect_to pipeline_path(@pipeline), notice: "Tageslimit auf #{@pipeline.daily_limit} gesetzt."
   end
 
   def test_send

@@ -22,6 +22,7 @@ Rails.application.routes.draw do
       post :import_csv
       post :bulk_send
       post :test_send
+      patch :update_daily_limit
     end
     resources :items, only: [:show, :update], controller: "pipeline_items" do
       member do

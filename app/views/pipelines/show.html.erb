@@ -10,17 +10,29 @@
     </div>
     <div class="flex items-center gap-3">
       <% approved_count = @pipeline.items.where(status: "approved").count %>
-      <% if approved_count > 0 %>
+      <% sent_today = @pipeline.sent_today_count %>
+      <% remaining = @pipeline.remaining_sends_today %>
+      <% daily_limit = @pipeline.daily_limit %>
+
+      <%# Daily limit setting %>
+      <%= form_tag update_daily_limit_pipeline_path(@pipeline), method: :patch, class: "flex items-center gap-1" do %>
+        <span class="text-xs text-gray-500">Limit/Tag:</span>
+        <%= number_field_tag :daily_limit, daily_limit, min: 1, max: 100, class: "w-14 text-center border rounded px-1 py-1.5 text-sm",
+          onchange: "this.form.requestSubmit()" %>
+      <% end %>
+
+      <% if approved_count > 0 && remaining > 0 %>
         <%= button_to "Testmail", test_send_pipeline_path(@pipeline),
           class: "bg-gray-200 text-gray-700 px-3 py-1.5 rounded text-sm hover:bg-gray-300",
           data: { turbo_confirm: "Testmail an eigene Adresse senden?" } %>
-        <%= form_tag bulk_send_pipeline_path(@pipeline), method: :post, class: "flex items-center gap-1", data: { controller: "bulk-send" } do %>
-          <%= number_field_tag :limit, [5, approved_count].min, min: 1, max: approved_count, class: "w-16 text-center border rounded px-2 py-1.5 text-sm", data: { bulk_send_target: "input" } %>
-          <span class="text-sm text-gray-500">/ <%= approved_count %></span>
-          <%= submit_tag "Emails senden", class: "bg-emerald-600 text-white px-3 py-1.5 rounded text-sm hover:bg-emerald-700 cursor-pointer ml-1",
-            data: { turbo_confirm: "Emails jetzt senden?", bulk_send_target: "button" } %>
-        <% end %>
+        <%= button_to "#{[remaining, approved_count].min} Emails senden (#{sent_today}/#{daily_limit} heute)",
+          bulk_send_pipeline_path(@pipeline),
+          class: "bg-emerald-600 text-white px-3 py-1.5 rounded text-sm hover:bg-emerald-700",
+          data: { turbo_confirm: "#{[remaining, approved_count].min} Emails jetzt senden?" } %>
+      <% elsif remaining <= 0 %>
+        <span class="text-sm text-orange-600 font-medium">Tageslimit erreicht (#{sent_today}/#{daily_limit})</span>
       <% end %>
+
       <div class="bg-white border rounded-lg p-3 shadow-sm">
         <h2 class="text-xs font-medium text-gray-500 mb-1">CSV Import</h2>
         <%= form_tag import_csv_pipeline_path(@pipeline), multipart: true, class: "flex items-center gap-2" do %>

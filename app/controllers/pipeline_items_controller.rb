@@ -84,6 +84,11 @@ class PipelineItemsController < ApplicationController
       return
     end
 
+    if @pipeline.remaining_sends_today <= 0
+      redirect_to pipeline_path(@pipeline), alert: "Tageslimit erreicht (#{@pipeline.daily_limit}/#{@pipeline.daily_limit})."
+      return
+    end
+
     @item.update!(current_step: send_step)
     ProcessItemJob.perform_later(@item.id)
 
