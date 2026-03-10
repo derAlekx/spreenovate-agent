@@ -1,0 +1,23 @@
+<div class="max-w-4xl mx-auto p-6">
+  <%= render "project_wizard/step_indicator", current_step: 1 %>
+
+  <div class="bg-white border rounded-lg p-6">
+    <h2 class="text-xl font-bold mb-4">Projekt anlegen</h2>
+
+    <%= form_tag wizard_save_step1_projects_path, method: :post do %>
+      <div class="mb-6">
+        <label class="block text-sm font-medium text-gray-700 mb-1">Projektname *</label>
+        <%= text_field_tag :name, @wizard.dig("project", "name"),
+          class: "w-full border rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500",
+          required: true, placeholder: "z.B. spreenovate" %>
+      </div>
+
+      <div class="flex justify-between items-center">
+        <%= link_to "Abbrechen", projects_path,
+          class: "text-gray-500 hover:text-gray-700 text-sm" %>
+        <%= submit_tag "Weiter →",
+          class: "bg-blue-600 text-white px-6 py-2 rounded text-sm hover:bg-blue-700 cursor-pointer" %>
+      </div>
+    <% end %>
+  </div>
+</div>

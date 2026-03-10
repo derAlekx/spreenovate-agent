@@ -1,0 +1,26 @@
+<%# locals: (index:, step_name:, step_type:) %>
+<div class="flex items-center gap-3 bg-gray-50 rounded p-3" data-pipeline-steps-target="row">
+  <span class="text-gray-400 text-sm font-mono w-6 text-center" data-pipeline-steps-target="position">
+    <%= index.is_a?(Integer) ? index + 1 : "#" %>
+  </span>
+
+  <input type="text" name="steps[][name]" value="<%= step_name %>"
+    placeholder="Step Name"
+    class="flex-1 border rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+    required>
+
+  <select name="steps[][step_type]"
+    class="w-44 border rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+    required>
+    <option value="">-- Typ --</option>
+    <% PipelineStep::VALID_STEP_TYPES.each do |t| %>
+      <option value="<%= t %>" <%= 'selected' if step_type == t %>><%= t %></option>
+    <% end %>
+  </select>
+
+  <button type="button"
+    data-action="pipeline-steps#remove"
+    class="text-red-400 hover:text-red-600 text-lg leading-none">
+    &times;
+  </button>
+</div>

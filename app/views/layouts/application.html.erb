@@ -12,6 +12,23 @@
   </head>
 
   <body class="bg-gray-100 min-h-screen">
+    <nav class="bg-white border-b">
+      <div class="max-w-4xl mx-auto px-6 py-3 flex items-center justify-between">
+        <div class="flex items-center gap-6">
+          <%= link_to "Spreenovate Agent", root_path,
+            class: "text-lg font-bold text-gray-900 hover:text-gray-700" %>
+          <div class="flex items-center gap-4 text-sm">
+            <%= link_to "Projects", projects_path,
+              class: "text-gray-600 hover:text-gray-900 #{controller_name.in?(%w[projects project_wizard]) ? 'font-semibold text-gray-900' : ''}" %>
+            <%= link_to "Credentials", credentials_path,
+              class: "text-gray-600 hover:text-gray-900 #{controller_name == 'credentials' ? 'font-semibold text-gray-900' : ''}" %>
+          </div>
+        </div>
+        <%= link_to "+ Neues Projekt", wizard_projects_path,
+          class: "bg-blue-600 text-white px-4 py-2 rounded text-sm hover:bg-blue-700" %>
+      </div>
+    </nav>
+
     <% if notice.present? %>
       <div class="max-w-4xl mx-auto mt-4 px-6">
         <div class="bg-green-100 border border-green-300 text-green-800 rounded p-3 text-sm"><%= notice %></div>
