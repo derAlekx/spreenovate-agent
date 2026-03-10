@@ -1,6 +1,6 @@
 # Email Draft Prompt
 
-Schreibe eine personalisierte Cold-Email auf Deutsch. Max 3–4 Sätze im Body. Kurz.
+Schreibe eine personalisierte Cold-Email auf Deutsch. Luftig, kurze Absätze, viel Whitespace.
 
 ## Empfänger
 
@@ -18,10 +18,12 @@ Website: https://spreenovate.de
 
 ## Kern-Framing (wichtig!)
 
-Spreenovate verkauft NICHT "Workflow-Automatisierung" oder "KI-Tools". Der echte Wert:
-**Nach der Zusammenarbeit versteht man, wie KI funktioniert. Keine Angst mehr, kein FOMO. Man kann mitreden und weiß, was real ist und was Hype.**
+Der zentrale Pain ist NICHT "mir fehlt ein Tool" oder "ich brauche Automatisierung". Der zentrale Pain ist:
+**Unsicherheit. Man weiß, dass KI wichtig ist, aber nicht genau was davon real ist und was Hype. Man kann nicht mitreden, nicht einschätzen, nicht entscheiden. Und je länger man wartet, desto größer wird die Lücke.**
 
-Konkrete Ergebnisse (Prototypen, optimierte Prozesse) kommen nebenbei raus — aber das ist nicht der Lead der Email.
+Spreenovate schließt diese Lücke. Nicht durch Schulungen oder Konzeptpapiere, sondern durch gemeinsames Arbeiten an einem echten Problem. Danach versteht man es — weil man es selbst gemacht hat.
+
+Die Email soll dieses Gefühl von "ich sollte das besser verstehen als ich es tue" triggern — ohne es direkt auszusprechen. FOMO durch eine kluge Frage, nicht durch Druck.
 
 ## Typische Pain Points der Zielgruppe (als Referenz)
 
@@ -43,24 +45,30 @@ Nutze diese, um den richtigen Nerv zu treffen — nicht als Checkliste, sondern 
 - Kein Feature-Pitch, keine Bullet-Listen, keine Tool-Namen
 - Nicht schmierig, nicht zu förmlich, nicht zu nett
 
-## Aufbau
+## Aufbau (exakt diese Absatz-Struktur!)
 
-1. **Eröffnung:** Konkreter Bezug zur Person oder Firma — etwas aus dem Research, das zeigt "ich hab mich mit Ihnen beschäftigt"
-2. **Mitte:** 1 Satz warum das relevant ist — kein Pitch, eher eine Beobachtung oder ehrliche Frage
-3. **Ende:** Druckloser CTA — nur der Link, kein "lassen Sie uns telefonieren", kein "haben Sie 15 Minuten"
+Die Email hat genau diese Absätze, jeweils durch eine Leerzeile getrennt:
+
+1. Anrede ("Hallo Herr/Frau ...")
+2. Hook: 1–2 Sätze. Konkreter Bezug zur Person/Firma aus dem Research.
+3. Beobachtung oder ehrliche Frage: 1 Satz. Trifft einen Nerv. Zielt auf Unsicherheit/FOMO, nicht auf fehlende Tools.
+4. Gedanke weiterspinnen: 1–2 Sätze. Den FOMO-Gedanken aus Punkt 3 zu Ende denken. KEINE Selbstbeschreibung, KEIN "wir machen X", KEIN "kein Großprojekt, kein Strategiepapier". Einfach den Gedanken landen lassen — wie eine Beobachtung unter Bekannten. Jede Email muss hier anders klingen.
+5. CTA: 1 Zeile mit Link. Drucklos, ohne Überleitung. Einfach nur der Link. ("Falls Sie neugierig sind: https://spreenovate.de")
+6. Signatur ("Beste Grüße\nAlexander Kamphorst")
+
+Jeder Punkt ist ein eigener Absatz. Nicht zusammenfassen. Nicht in einen Block packen.
 
 ## Regeln
 
 - Sprache: Deutsch
-- Max 3–4 kurze Sätze im Body, nicht mehr
 - Kurze, neugierig machende Subject Line (keine Clickbait-Tricks)
 - Keine klassischen KI Sprachfloskeln, echte und ehrliche Sprache
 - Ziel: Website-Besuch (Link-Klick auf https://spreenovate.de), KEIN Call
 - Plain Text — kein HTML, kein Markdown, keine Sternchen, keine Formatierung. Nur reiner Text.
 - Jede Email muss sich deutlich anders anfühlen als die anderen
-- Absender: Alexander Kamphorst (Unterschrift "Beste Grüße, Alexander Kamphorst")
+- Absender: Alexander Kamphorst
 
-## Gutes Beispiel für den Ton
+## Gutes Beispiel für den Ton und die Struktur
 
 > Betreff: KI-Positionen besetzen vs. KI verstehen
 >
@@ -68,14 +76,14 @@ Nutze diese, um den richtigen Nerv zu treffen — nicht als Checkliste, sondern 
 >
 > Sie besetzen bei Digital Vikings Data & AI Rollen — das heißt, Sie hören jeden Tag, was Unternehmen mit KI vorhaben. Ehrliche Frage: Wenn ein Kunde fragt „Was davon ist real und was ist Hype?" — wie sicher sind Sie in der Antwort?
 >
-> Die meisten im Digital-Umfeld kennen das Gefühl. Man sieht die Tools, liest die Headlines, aber zwischen „klingt spannend" und „ich weiß genau, was das kann" ist eine Lücke. Wir schließen die - kein Jahresprojekt, kein Training. Ein konkretes Problem, gemeinsam gelöst, und danach verstehen Sie, wie es funktioniert.
+> Die meisten im Digital-Umfeld kennen das Gefühl. Man sieht die Tools, liest die Headlines, aber zwischen „klingt spannend" und „ich weiß genau, was das kann" ist eine Lücke. Und die wächst gerade schneller als die meisten zugeben würden.
 >
 > Falls Sie neugierig sind: https://spreenovate.de
 >
 > Beste Grüße
 > Alexander Kamphorst
 
-Was hier funktioniert: Hook trifft seinen Alltag, Pain ist nicht "Ihnen fehlt Automatisierung" sondern "sind Sie sicher, dass Sie's wirklich verstehen?", CTA ist drucklos.
+Was hier funktioniert: Hook trifft seinen Alltag, die Frage trifft den Nerv ("bist du dir sicher?"), der Gedanke danach spitzt es zu ohne zu pitchen, CTA ist nur ein Link. Keine Selbstbeschreibung, kein "wir machen X".
 
 ## Output-Format
 
