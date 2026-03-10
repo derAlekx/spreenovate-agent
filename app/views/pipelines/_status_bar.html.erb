@@ -9,48 +9,51 @@
   sent: pipeline.items.where(status: "sent").count
 } %>
 
-<div class="bg-white border rounded-lg shadow-sm p-4 mb-6">
-  <div class="flex items-center gap-6 text-sm flex-wrap">
-    <div>
-      <span class="text-gray-500">Total</span>
-      <span class="font-semibold ml-1"><%= counts[:total] %></span>
-    </div>
-    <div>
-      <span class="inline-block w-2 h-2 rounded-full bg-yellow-400 mr-1"></span>
-      <span class="text-gray-500">Review</span>
-      <span class="font-semibold ml-1"><%= counts[:review] %></span>
-    </div>
-    <div>
-      <span class="inline-block w-2 h-2 rounded-full bg-blue-400 mr-1"></span>
-      <span class="text-gray-500">Processing</span>
-      <span class="font-semibold ml-1"><%= counts[:processing] %></span>
-    </div>
-    <div>
-      <span class="inline-block w-2 h-2 rounded-full bg-green-500 mr-1"></span>
-      <span class="text-gray-500">Approved</span>
-      <span class="font-semibold ml-1"><%= counts[:approved] %></span>
-    </div>
-    <div>
-      <span class="inline-block w-2 h-2 rounded-full bg-red-400 mr-1"></span>
-      <span class="text-gray-500">Skipped</span>
-      <span class="font-semibold ml-1"><%= counts[:skipped] %></span>
-    </div>
-    <div>
-      <span class="inline-block w-2 h-2 rounded-full bg-gray-400 mr-1"></span>
-      <span class="text-gray-500">Pending</span>
-      <span class="font-semibold ml-1"><%= counts[:pending] %></span>
-    </div>
-    <% if counts[:failed] > 0 %>
-    <div>
-      <span class="inline-block w-2 h-2 rounded-full bg-red-600 mr-1"></span>
-      <span class="text-gray-500">Failed</span>
-      <span class="font-semibold ml-1 text-red-600"><%= counts[:failed] %></span>
-    </div>
-    <% end %>
-    <div>
-      <span class="inline-block w-2 h-2 rounded-full bg-emerald-500 mr-1"></span>
-      <span class="text-gray-500">Sent</span>
-      <span class="font-semibold ml-1"><%= counts[:sent] %></span>
-    </div>
+<div class="flex items-center gap-6 text-sm mb-6">
+  <div>
+    <span class="text-neutral-600"><%= counts[:total] %></span>
+    <span class="text-neutral-600 ml-0.5">total</span>
   </div>
+  <div class="flex items-center gap-1.5">
+    <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+    <span class="text-neutral-500"><%= counts[:review] %></span>
+    <span class="text-neutral-600">review</span>
+  </div>
+  <% if counts[:processing] > 0 %>
+  <div class="flex items-center gap-1.5">
+    <span class="w-1.5 h-1.5 rounded-full bg-blue-400"></span>
+    <span class="text-neutral-500"><%= counts[:processing] %></span>
+    <span class="text-neutral-600">processing</span>
+  </div>
+  <% end %>
+  <div class="flex items-center gap-1.5">
+    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+    <span class="text-neutral-500"><%= counts[:approved] %></span>
+    <span class="text-neutral-600">approved</span>
+  </div>
+  <% if counts[:pending] > 0 %>
+  <div class="flex items-center gap-1.5">
+    <span class="w-1.5 h-1.5 rounded-full bg-neutral-500"></span>
+    <span class="text-neutral-500"><%= counts[:pending] %></span>
+    <span class="text-neutral-600">pending</span>
+  </div>
+  <% end %>
+  <% if counts[:failed] > 0 %>
+  <div class="flex items-center gap-1.5">
+    <span class="w-1.5 h-1.5 rounded-full bg-red-500"></span>
+    <span class="text-red-400"><%= counts[:failed] %></span>
+    <span class="text-neutral-600">failed</span>
+  </div>
+  <% end %>
+  <div class="flex items-center gap-1.5">
+    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+    <span class="text-neutral-500"><%= counts[:sent] %></span>
+    <span class="text-neutral-600">sent</span>
+  </div>
+  <% if counts[:skipped] > 0 %>
+  <div class="flex items-center gap-1.5">
+    <span class="text-neutral-500"><%= counts[:skipped] %></span>
+    <span class="text-neutral-600">skipped</span>
+  </div>
+  <% end %>
 </div>

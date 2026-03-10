@@ -1,41 +1,37 @@
-<div class="max-w-4xl mx-auto p-6 bg-gray-50 min-h-screen">
+<div class="max-w-5xl mx-auto px-6 pb-12">
   <%# Header %>
-  <div class="flex items-center justify-between mb-6">
+  <div class="flex items-center justify-between mb-8">
     <div>
-      <p class="text-sm text-gray-500">
-        <%= link_to "Projects", projects_path, class: "hover:text-gray-700" %> /
-        <%= link_to @pipeline.project.name, project_path(@pipeline.project), class: "hover:text-gray-700" %>
+      <p class="text-sm text-neutral-500 mb-1">
+        <%= link_to "Projects", projects_path, class: "hover:text-neutral-300 transition" %> /
+        <%= link_to @pipeline.project.name, project_path(@pipeline.project), class: "hover:text-neutral-300 transition" %>
       </p>
-      <h1 class="text-2xl font-bold text-gray-900"><%= @pipeline.name %></h1>
+      <h1 class="text-xl font-medium text-neutral-100"><%= @pipeline.name %></h1>
     </div>
     <div class="flex items-center gap-3">
       <% approved_count = @pipeline.items.where(status: "approved").count %>
       <% sent_today = @pipeline.sent_today_count %>
       <% remaining = @pipeline.remaining_sends_today %>
       <% daily_limit = @pipeline.daily_limit %>
-
       <% send_count = [remaining, approved_count].min %>
       <% can_send = send_count > 0 %>
 
       <% if approved_count > 0 %>
         <%= button_to "Testmail", test_send_pipeline_path(@pipeline),
-          class: "bg-gray-200 text-gray-700 px-3 py-1.5 rounded text-sm hover:bg-gray-300",
+          class: "text-sm text-neutral-500 border border-neutral-700 px-3 py-1.5 rounded-lg hover:text-neutral-300 hover:border-neutral-500 transition",
           data: { turbo_confirm: "Testmail an eigene Adresse senden?" } %>
       <% end %>
 
-      <%= button_to "Send #{send_count}/#{daily_limit} Emails",
+      <%= button_to "Send #{send_count}/#{daily_limit}",
         bulk_send_pipeline_path(@pipeline),
-        class: "px-4 py-1.5 rounded text-sm font-medium #{can_send ? 'bg-emerald-600 text-white hover:bg-emerald-700' : 'bg-gray-300 text-gray-500 cursor-not-allowed'}",
+        class: "text-sm px-4 py-1.5 rounded-lg font-medium transition #{can_send ? 'bg-amber-700 text-white hover:bg-amber-600' : 'bg-neutral-800 text-neutral-600 cursor-not-allowed'}",
         disabled: !can_send,
         data: can_send ? { turbo_confirm: "#{send_count} Emails jetzt senden?" } : {} %>
 
-      <div class="bg-white border rounded-lg p-3 shadow-sm">
-        <h2 class="text-xs font-medium text-gray-500 mb-1">CSV Import</h2>
-        <%= form_tag import_csv_pipeline_path(@pipeline), multipart: true, class: "flex items-center gap-2" do %>
-          <%= file_field_tag :csv_file, accept: ".csv", class: "text-sm w-48" %>
-          <%= submit_tag "Importieren", class: "bg-blue-600 text-white px-3 py-1.5 rounded text-sm hover:bg-blue-700 cursor-pointer" %>
-        <% end %>
-      </div>
+      <%= form_tag import_csv_pipeline_path(@pipeline), multipart: true, class: "flex items-center gap-2" do %>
+        <%= file_field_tag :csv_file, accept: ".csv", class: "text-sm text-neutral-500 file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border file:border-neutral-700 file:text-sm file:text-neutral-400 file:bg-transparent hover:file:border-neutral-500 file:cursor-pointer file:transition" %>
+        <%= submit_tag "Import", class: "text-sm text-neutral-400 border border-neutral-700 px-3 py-1.5 rounded-lg hover:text-neutral-200 hover:border-neutral-500 transition cursor-pointer" %>
+      <% end %>
     </div>
   </div>
 
@@ -47,7 +43,7 @@
   <%# Filter Tabs %>
   <div class="flex gap-1 mb-6">
     <% filters = [
-      ["Alle", "all"],
+      ["All", "all"],
       ["Pending", "pending"],
       ["Processing", "processing"],
       ["Review", "review"],
@@ -58,29 +54,29 @@
     ] %>
     <% filters.each do |label, value| %>
       <%= link_to label, pipeline_path(@pipeline, filter: value),
-        class: "px-3 py-1.5 rounded-md text-sm font-medium #{@filter == value ? 'bg-gray-900 text-white' : 'bg-white text-gray-600 hover:bg-gray-100 border'}" %>
+        class: "px-3 py-1.5 rounded-lg text-sm transition #{@filter == value ? 'bg-neutral-800 text-neutral-100' : 'text-neutral-500 hover:text-neutral-300'}" %>
     <% end %>
   </div>
 
-  <%# Bulk Actions (only on review tab) %>
+  <%# Bulk Actions %>
   <% if @filter == "review" && @items.any? %>
     <div class="flex gap-2 mb-4">
-      <%= button_to "Alle approven", bulk_approve_pipeline_items_path(@pipeline, filter: @filter),
-        class: "bg-green-600 text-white px-3 py-1.5 rounded text-sm hover:bg-green-700",
+      <%= button_to "Approve all", bulk_approve_pipeline_items_path(@pipeline, filter: @filter),
+        class: "text-sm text-neutral-400 border border-neutral-700 px-3 py-1.5 rounded-lg hover:text-neutral-200 hover:border-neutral-500 transition",
         data: { turbo_confirm: "Alle #{@items.count} Items approven?" } %>
     </div>
   <% end %>
 
   <% if %w[approved skipped].include?(@filter) && @items.any? %>
     <div class="flex gap-2 mb-4">
-      <%= button_to "Alle zurücksetzen", bulk_reset_pipeline_items_path(@pipeline, filter: @filter),
-        class: "bg-gray-200 text-gray-700 px-3 py-1.5 rounded text-sm hover:bg-gray-300",
+      <%= button_to "Reset all", bulk_reset_pipeline_items_path(@pipeline, filter: @filter),
+        class: "text-sm text-neutral-500 border border-neutral-700 px-3 py-1.5 rounded-lg hover:text-neutral-300 hover:border-neutral-500 transition",
         data: { turbo_confirm: "Alle Items zurück auf Review setzen?" } %>
     </div>
   <% end %>
 
   <%# Item Cards %>
-  <div class="space-y-4">
+  <div class="space-y-3">
     <% @items.each do |item| %>
       <%= turbo_frame_tag dom_id(item) do %>
         <%= render partial: "pipeline_items/item_card", locals: { item: item, pipeline: @pipeline } %>
@@ -88,8 +84,8 @@
     <% end %>
 
     <% if @items.empty? %>
-      <div class="bg-white border rounded-lg shadow-sm p-8 text-center text-gray-400">
-        Keine Items mit Status "<%= @filter %>".
+      <div class="text-center py-12 text-neutral-600 text-sm">
+        No items with status "<%= @filter %>".
       </div>
     <% end %>
   </div>

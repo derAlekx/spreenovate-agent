@@ -1,14 +1,21 @@
-<div class="max-w-4xl mx-auto p-6">
-  <h1 class="text-2xl font-bold mb-6">Projects</h1>
+<div class="max-w-5xl mx-auto px-6 pb-12">
+  <h1 class="text-xl font-medium text-neutral-100 mb-6">Projects</h1>
 
-  <% @projects.each do |project| %>
-    <div class="bg-white border rounded-lg p-4 mb-4 hover:shadow-sm">
-      <%= link_to project.name, project, class: "text-xl font-semibold text-blue-600 hover:underline" %>
-      <p class="text-gray-500 text-sm mt-1"><%= project.pipelines.count %> Pipeline(s)</p>
-    </div>
-  <% end %>
+  <div class="space-y-2">
+    <% @projects.each do |project| %>
+      <%= link_to project, class: "block bg-neutral-900 border border-neutral-800 rounded-xl p-4 hover:border-neutral-700 transition group" do %>
+        <div class="flex items-center justify-between">
+          <div>
+            <span class="text-neutral-100 font-medium group-hover:text-white transition"><%= project.name %></span>
+            <span class="text-neutral-600 text-sm ml-2"><%= project.pipelines.count %> pipelines</span>
+          </div>
+          <span class="text-neutral-700 group-hover:text-neutral-500 transition">&rarr;</span>
+        </div>
+      <% end %>
+    <% end %>
+  </div>
 
   <% if @projects.empty? %>
-    <p class="text-gray-400">Keine Projekte vorhanden. Führe <code>bin/rails db:seed</code> aus.</p>
+    <p class="text-neutral-600 text-sm">No projects yet.</p>
   <% end %>
 </div>
