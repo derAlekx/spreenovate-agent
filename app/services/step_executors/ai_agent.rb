@@ -57,7 +57,7 @@ module StepExecutors
 
       tools = build_tools
       result = client.call(
-        model: step.config["model"] || "claude-sonnet-4-20250514",
+        model: step.config["model"] || "claude-opus-4-6",
         system: system_prompt,
         prompt: prompt,
         tools: tools
@@ -113,7 +113,7 @@ module StepExecutors
       PROMPT
 
       result = client.call(
-        model: step.config["model"] || "claude-sonnet-4-20250514",
+        model: step.config["model"] || "claude-opus-4-6",
         system: system_prompt,
         prompt: prompt,
         tools: []
