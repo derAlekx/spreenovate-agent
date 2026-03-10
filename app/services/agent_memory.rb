@@ -1,13 +1,9 @@
 class AgentMemory
   BASE_PATH = Rails.root.join("agent_memory")
 
-  def self.load(pipeline)
+  def self.load_prompt(pipeline, task)
     dir = memory_dir(pipeline)
-    {
-      memory: read_file(dir.join("MEMORY.md")),
-      style_guide: read_file(dir.join("STYLE_GUIDE.md")),
-      daily_log: read_file(dir.join("memory", "#{Date.current}.md"))
-    }
+    read_file(dir.join("prompt_#{task}.md"))
   end
 
   def self.update_daily_log(pipeline, content)
@@ -19,12 +15,6 @@ class AgentMemory
     existing = read_file(log_file)
     new_content = existing.present? ? "#{existing}\n\n#{content}" : content
     File.write(log_file, new_content)
-  end
-
-  def self.update_memory(pipeline, content)
-    dir = memory_dir(pipeline)
-    FileUtils.mkdir_p(dir)
-    File.write(dir.join("MEMORY.md"), content)
   end
 
   private
