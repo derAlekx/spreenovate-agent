@@ -3,8 +3,8 @@
   "configurations": [
     {
       "name": "rails",
-      "runtimeExecutable": "bin/rails",
-      "runtimeArgs": ["server", "-p", "3000"],
+      "runtimeExecutable": "bin/dev",
+      "runtimeArgs": [],
       "port": 3000
     }
   ]
