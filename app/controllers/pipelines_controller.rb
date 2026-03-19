@@ -59,13 +59,17 @@ class PipelinesController < ApplicationController
 
     test_address = smtp_config["from_address"]
 
-    OutboundMailer.cold_email(
+    signature = @pipeline.project.settings["email_signature"]
+
+    message = OutboundMailer.cold_email(
       to: test_address,
       subject: "[TEST] #{item.data.dig('draft', 'subject')}",
       body: item.data.dig("draft", "body"),
       from_name: smtp_config["from_name"] || "Test",
-      from_address: smtp_config["from_address"]
-    ).delivery_method(:smtp, {
+      from_address: smtp_config["from_address"],
+      signature: signature
+    )
+    message.delivery_method(:smtp, {
       address: smtp_config["host"],
       port: smtp_config["port"].to_i,
       user_name: smtp_config["user"],
@@ -73,7 +77,8 @@ class PipelinesController < ApplicationController
       authentication: :login,
       enable_starttls_auto: smtp_config["port"].to_i != 465,
       ssl: smtp_config["port"].to_i == 465
-    }).deliver_now
+    })
+    message.deliver_now
 
     redirect_to pipeline_path(@pipeline),
       notice: "Testmail gesendet an #{test_address}"

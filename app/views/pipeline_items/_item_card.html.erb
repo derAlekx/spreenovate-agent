@@ -38,7 +38,11 @@
       <summary class="text-sm text-gray-400 dark:text-neutral-500 cursor-pointer hover:text-gray-600 dark:hover:text-neutral-300 transition">Research</summary>
       <div class="mt-2 p-3 bg-gray-50 dark:bg-neutral-950 rounded-lg text-sm text-gray-500 dark:text-neutral-400 border border-gray-200 dark:border-neutral-800">
         <% if item.data.dig("research", "summary") %>
-          <p><%= item.data.dig("research", "summary") %></p>
+          <p><%= item.data.dig("research", "summary")
+            .gsub(%r{(https?://[^\s,)]+)}) { |url| "<a href=\"#{url}\" target=\"_blank\" class=\"text-blue-500 dark:text-blue-400 underline hover:text-blue-600 dark:hover:text-blue-300\">#{url}</a>" }
+            .gsub(/\*\*(.+?)\*\*/m, '<span class="font-medium text-gray-600 dark:text-neutral-300">\1</span>')
+            .gsub(/\*(.+?)\*/m, '<em>\1</em>')
+            .html_safe %></p>
         <% end %>
         <% if item.data.dig("research", "pain_points").present? %>
           <p class="mt-2 text-gray-700 dark:text-neutral-300">Pain Points:</p>

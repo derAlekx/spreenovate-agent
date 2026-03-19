@@ -28,13 +28,16 @@ module StepExecutors
         ssl: smtp_config["port"].to_i == 465
       }
 
+      signature = project.settings["email_signature"]
+
       message = OutboundMailer.cold_email(
         to: to,
         subject: subject,
         body: body,
         from_name: from_name,
         from_address: from_address,
-        bcc: bcc
+        bcc: bcc,
+        signature: signature
       )
       message.delivery_method(:smtp, delivery_settings)
       message.deliver_now

@@ -53,7 +53,7 @@ Die Email hat genau diese Absätze, jeweils durch eine Leerzeile getrennt:
 2. Hook: 1–2 Sätze. Konkreter Bezug zur Person/Firma aus dem Research.
 3. Beobachtung oder ehrliche Frage: 1 Satz. Trifft einen Nerv. Zielt auf Unsicherheit/FOMO, nicht auf fehlende Tools.
 4. Gedanke weiterspinnen: 1–2 Sätze. Den FOMO-Gedanken aus Punkt 3 zu Ende denken. KEINE Selbstbeschreibung, KEIN "wir machen X", KEIN "kein Großprojekt, kein Strategiepapier". Einfach den Gedanken landen lassen — wie eine Beobachtung unter Bekannten. On point, ohne Überheblichkeit.
-5. CTA: 1 Zeile mit Link. Drucklos, ohne Überleitung. Einfach nur der Link. (z.B. "Falls Sie neugierig sind: https://spreenovate.de") - hier muss der Empfänger bereits überzeugt sein!
+5. CTA: 1 Zeile mit Link. Drucklos, ohne Überleitung. Der Satz soll zum Gedanken der Email passen — NICHT immer derselbe Standardsatz. NICHT "Falls Sie daran was ändern wollen". Stattdessen etwas das den Gedanken der Email natürlich abschließt und neugierig macht. Der Link ist immer https://www.spreenovate.de. Hier muss der Empfänger bereits überzeugt sein!
 6. Signatur ("Beste Grüße\nAlexander Kamphorst")
 
 Jeder Punkt ist ein eigener Absatz. Nicht zusammenfassen. Nicht in einen Block packen.

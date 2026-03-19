@@ -17,6 +17,10 @@ Recherchiere diese Person für personalisierten B2B-Outreach.
 4. **Pain Points:** Was könnte diese Person in ihrer Rolle aktuell beschäftigen? Wo drückt der Schuh?
 5. **Hook:** Gibt es etwas Konkretes, das als Aufhänger für eine Email taugt? Etwas Spezifisches, nicht Generisches.
 
+## WICHTIG: Aktualität
+
+Wir haben aktuell {{current_date}}. Nutze NUR Informationen die aus den letzten 2 Monaten stammen (ab {{min_date}}). Ältere Quellen sind wertlos — eine Email die auf veraltete News referenziert wirkt peinlich, nicht personalisiert. Wenn du nichts Aktuelles findest, sag das lieber ehrlich.
+
 ## Kontext: Wer wir sind und wen wir ansprechen
 
 Absender: Spreenovate — zwei AI-Consultants (Fabian & Alexander, Berlin) im Abo-Modell, helfen Unternehmen KI zu verstehen und eigenständig einzusetzen. Kein Tool-Verkauf, keine Agentur.
@@ -33,3 +37,9 @@ Besonders relevante Anknüpfungspunkte:
 ## Output
 
 3–6 knappe Sätze. Kein Bullshit, nur was für eine personalisierte Email nützlich ist. Wenn du nichts Relevantes findest, sag das — lieber ehrlich als aufgeblasen.
+
+Gib zu jeder Erkenntnis die Quelle an:
+- URL der Quelle
+- Veröffentlichungsdatum (falls erkennbar), z.B. "März 2025"
+
+Format: "...[Aussage]... (Quelle: URL, Datum)" - die Quellenangaben sind extra, zählen quantitativ nicht zu 3-6 knappen Sätzen. Es geht nur darum die Infos schnell zu überprüfen.

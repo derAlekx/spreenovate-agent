@@ -44,6 +44,9 @@ module StepExecutors
     def self.interpolate_template(template, item)
       research = item.data["research"] || {}
 
+      two_months_ago = 2.months.ago.strftime("%B %Y")
+      current_date = Date.current.strftime("%B %Y")
+
       template
         .gsub("{{name}}", item.data["name"].to_s)
         .gsub("{{title}}", item.data["title"].to_s)
@@ -51,6 +54,8 @@ module StepExecutors
         .gsub("{{email}}", item.data["email"].to_s)
         .gsub("{{website}}", item.data["website"].to_s)
         .gsub("{{research_summary}}", research["summary"].to_s)
+        .gsub("{{current_date}}", current_date)
+        .gsub("{{min_date}}", two_months_ago)
     end
 
     def parse_research_response(text)
