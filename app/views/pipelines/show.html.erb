@@ -59,6 +59,17 @@
   </div>
 
   <%# Bulk Actions %>
+  <% if @filter == "pending" && @items.any? %>
+    <div class="flex gap-2 mb-4">
+      <%= button_to "Process next 10", bulk_process_pipeline_items_path(@pipeline, filter: @filter, batch_size: 10),
+        class: "text-sm text-gray-500 dark:text-neutral-400 border border-gray-300 dark:border-neutral-700 px-3 py-1.5 rounded-lg hover:text-gray-700 dark:hover:text-neutral-200 hover:border-gray-400 dark:hover:border-neutral-500 transition",
+        data: { turbo_confirm: "10 Items verarbeiten?" } %>
+      <%= button_to "Process next 50", bulk_process_pipeline_items_path(@pipeline, filter: @filter, batch_size: 50),
+        class: "text-sm text-gray-500 dark:text-neutral-400 border border-gray-300 dark:border-neutral-700 px-3 py-1.5 rounded-lg hover:text-gray-700 dark:hover:text-neutral-200 hover:border-gray-400 dark:hover:border-neutral-500 transition",
+        data: { turbo_confirm: "50 Items verarbeiten?" } %>
+    </div>
+  <% end %>
+
   <% if @filter == "review" && @items.any? %>
     <div class="flex gap-2 mb-4">
       <%= button_to "Approve all", bulk_approve_pipeline_items_path(@pipeline, filter: @filter),

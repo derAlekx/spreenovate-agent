@@ -31,10 +31,12 @@ Rails.application.routes.draw do
         post :retry
         post :redraft
         post :send_email
+        post :process_item
       end
       collection do
         post :bulk_approve
         post :bulk_reset
+        post :bulk_process
       end
     end
   end

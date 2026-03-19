@@ -87,6 +87,16 @@
     </div>
   <% end %>
 
+  <%# Pending actions %>
+  <% if item.status == "pending" %>
+    <div class="flex items-center gap-2 pt-3 border-t border-gray-100 dark:border-neutral-800">
+      <%= button_to "Process", process_item_pipeline_item_path(pipeline, item),
+        class: "bg-blue-600 dark:bg-blue-700 text-white px-4 py-1.5 rounded-lg text-sm font-medium hover:bg-blue-500 dark:hover:bg-blue-600 transition" %>
+      <%= button_to "Skip", skip_pipeline_item_path(pipeline, item),
+        class: "text-gray-500 dark:text-neutral-500 border border-gray-300 dark:border-neutral-700 px-4 py-1.5 rounded-lg text-sm hover:text-gray-700 dark:hover:text-neutral-300 hover:border-gray-400 dark:hover:border-neutral-500 transition" %>
+    </div>
+  <% end %>
+
   <%# Processing indicator %>
   <% if item.status == "processing" %>
     <div class="flex items-center gap-2 p-3 bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-900/30 rounded-lg text-sm text-blue-600 dark:text-blue-400 mb-3">

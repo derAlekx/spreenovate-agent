@@ -5,7 +5,7 @@ class Item < ApplicationRecord
 
   validates :status, presence: true
 
-  VALID_STATUSES = %w[pending processing review done approved rejected failed sent].freeze
+  VALID_STATUSES = %w[pending processing review done approved rejected failed sent excluded].freeze
   validates :status, inclusion: { in: VALID_STATUSES }
 
   scope :by_email, ->(email) { where("json_extract(data, '$.email') = ?", email) }
