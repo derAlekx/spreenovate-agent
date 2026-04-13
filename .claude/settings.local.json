@@ -4,7 +4,8 @@
       "WebFetch(domain:docs.apollo.io)",
       "WebSearch",
       "WebFetch(domain:apolloio.github.io)",
-      "WebFetch(domain:knowledge.apollo.io)"
+      "WebFetch(domain:knowledge.apollo.io)",
+      "WebFetch(domain:spreenovate.de)"
     ]
   }
 }

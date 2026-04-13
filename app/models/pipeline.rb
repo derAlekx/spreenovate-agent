@@ -9,7 +9,7 @@ class Pipeline < ApplicationRecord
   before_validation :generate_slug, if: -> { slug.blank? && name.present? }
 
   def daily_limit
-    5
+    10
   end
 
   def sent_today_count
