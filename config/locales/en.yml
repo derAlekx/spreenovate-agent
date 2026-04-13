@@ -29,3 +29,10 @@
 
 en:
   hello: "Hello world"
+  views:
+    pipelines:
+      show:
+        bulk_send_button: "%{left}/%{limit}"
+        bulk_send_confirm: "Send %{count} emails now?"
+        testmail_button: "Test email"
+        testmail_confirm: "Send test email to your own address?"

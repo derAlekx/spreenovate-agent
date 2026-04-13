@@ -10,23 +10,23 @@
     </div>
     <div class="flex items-center gap-3">
       <% approved_count = @pipeline.items.where(status: "approved").count %>
-      <% sent_today = @pipeline.sent_today_count %>
       <% remaining = @pipeline.remaining_sends_today %>
       <% daily_limit = @pipeline.daily_limit %>
       <% send_count = [remaining, approved_count].min %>
-      <% can_send = send_count > 0 %>
+      <% bulk_send_label_count = approved_count.positive? ? send_count : remaining %>
+      <% can_send = remaining.positive? && approved_count.positive? %>
 
       <% if approved_count > 0 %>
-        <%= button_to "Testmail", test_send_pipeline_path(@pipeline),
+        <%= button_to t("views.pipelines.show.testmail_button"), test_send_pipeline_path(@pipeline),
           class: "text-sm text-gray-500 dark:text-neutral-500 border border-gray-300 dark:border-neutral-700 px-3 py-1.5 rounded-lg hover:text-gray-700 dark:hover:text-neutral-300 hover:border-gray-400 dark:hover:border-neutral-500 transition",
-          data: { turbo_confirm: "Testmail an eigene Adresse senden?" } %>
+          data: { turbo_confirm: t("views.pipelines.show.testmail_confirm") } %>
       <% end %>
 
-      <%= button_to "Send #{send_count}/#{daily_limit}",
+      <%= button_to t("views.pipelines.show.bulk_send_button", left: bulk_send_label_count, limit: daily_limit),
         bulk_send_pipeline_path(@pipeline),
         class: "text-sm px-4 py-1.5 rounded-lg font-medium transition #{can_send ? 'bg-amber-600 dark:bg-amber-700 text-white hover:bg-amber-500 dark:hover:bg-amber-600' : 'bg-gray-200 dark:bg-neutral-800 text-gray-400 dark:text-neutral-600 cursor-not-allowed'}",
         disabled: !can_send,
-        data: can_send ? { turbo_confirm: "#{send_count} Emails jetzt senden?" } : {} %>
+        data: can_send ? { turbo_confirm: t("views.pipelines.show.bulk_send_confirm", count: send_count) } : {} %>
 
       <%= form_tag import_csv_pipeline_path(@pipeline), multipart: true, class: "flex items-center gap-2" do %>
         <%= file_field_tag :csv_file, accept: ".csv", class: "text-sm text-gray-500 dark:text-neutral-500 file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border file:border-gray-300 dark:file:border-neutral-700 file:text-sm file:text-gray-500 dark:file:text-neutral-400 file:bg-transparent hover:file:border-gray-400 dark:hover:file:border-neutral-500 file:cursor-pointer file:transition" %>

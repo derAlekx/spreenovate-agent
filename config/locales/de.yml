@@ -1,0 +1,8 @@
+de:
+  views:
+    pipelines:
+      show:
+        bulk_send_button: "%{left}/%{limit}"
+        bulk_send_confirm: "%{count} E-Mails jetzt senden?"
+        testmail_button: "Testmail"
+        testmail_confirm: "Testmail an eigene Adresse senden?"
