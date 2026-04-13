@@ -66,6 +66,12 @@ class PipelineItemsController < ApplicationController
   def update
     data = @item.data.dup
     data["draft"] ||= {}
+
+    # Preserve original AI draft before first human edit (for feedback loop)
+    unless data.key?("draft_original")
+      data["draft_original"] = data["draft"].slice("subject", "body")
+    end
+
     data["draft"]["subject"] = params[:subject] if params[:subject]
     data["draft"]["body"] = params[:body] if params[:body]
     @item.update!(data: data)
@@ -113,17 +119,27 @@ class PipelineItemsController < ApplicationController
   end
 
   def bulk_process
-    batch_size = (params[:batch_size] || 50).to_i
-    items = @pipeline.items.where(status: "pending").limit(batch_size)
-    count = 0
+    batch_size = (params[:batch_size] || 10).to_i
+    items = @pipeline.items.where(status: "pending").limit(batch_size).to_a
+    count = items.size
 
-    items.find_each do |item|
-      ProcessItemJob.perform_later(item.id)
-      count += 1
+    if count == 0
+      redirect_to pipeline_path(@pipeline, filter: params[:filter]),
+        notice: "Keine pending Items gefunden."
+      return
+    end
+
+    # Mark items as processing immediately to prevent double-clicks
+    Item.where(id: items.map(&:id)).update_all(status: "processing")
+
+    # Group items by their current step and submit one batch per step
+    items.group_by(&:current_step_id).each do |step_id, step_items|
+      item_ids = step_items.map(&:id)
+      BatchSubmitJob.perform_later(@pipeline.id, step_id, item_ids)
     end
 
     redirect_to pipeline_path(@pipeline, filter: params[:filter]),
-      notice: "#{count} Items werden verarbeitet..."
+      notice: "#{count} Items werden als Batch verarbeitet..."
   end
 
   def bulk_approve

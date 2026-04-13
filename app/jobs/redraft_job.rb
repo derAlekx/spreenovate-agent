@@ -17,8 +17,10 @@ class RedraftJob < ApplicationJob
     old_draft = item.data["draft"] || {}
     previous_email = "subject: #{old_draft['subject']}\nbody: #{old_draft['body']}"
 
-    prompt = StepExecutors::AiAgent.interpolate_template(prompt_template, item)
-    prompt += <<~ADDITION
+    # Split prompt for caching: static part stays cached, dynamic part gets interpolated
+    static_part, dynamic_part = prompt_template.split(StepExecutors::AiAgent::PROMPT_SEPARATOR, 2)
+
+    redraft_addition = <<~ADDITION
 
       ## Wichtig: Neue Version!
 
@@ -29,12 +31,25 @@ class RedraftJob < ApplicationJob
     ADDITION
 
     client = ClaudeClient.new(api_key: api_key)
-    result = client.call(
-      model: step.config["model"] || "claude-opus-4-6",
-      system: "Folge den Anweisungen im Prompt exakt. Sei knapp und präzise! Kürze > Vollständigkeit.",
-      prompt: prompt,
-      tools: []
-    )
+
+    if dynamic_part
+      dynamic_interpolated = StepExecutors::AiAgent.interpolate_template(dynamic_part, item)
+      result = client.call_with_cache(
+        model: step.config["model"] || "claude-opus-4-6",
+        system: StepExecutors::AiAgent::SYSTEM_PROMPT,
+        static_prompt: static_part.strip,
+        dynamic_prompt: dynamic_interpolated + redraft_addition,
+        tools: []
+      )
+    else
+      prompt = StepExecutors::AiAgent.interpolate_template(static_part, item) + redraft_addition
+      result = client.call(
+        model: step.config["model"] || "claude-opus-4-6",
+        system: StepExecutors::AiAgent::SYSTEM_PROMPT,
+        prompt: prompt,
+        tools: []
+      )
+    end
 
     text = result[:text]
     subject = text.match(/subject:\s*(.+)/i)&.captures&.first&.strip || "Kein Betreff"

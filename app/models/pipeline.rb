@@ -2,6 +2,7 @@ class Pipeline < ApplicationRecord
   belongs_to :project
   has_many :pipeline_steps, -> { order(:position) }, dependent: :destroy
   has_many :items, dependent: :destroy
+  has_many :message_batches, dependent: :destroy
 
   validates :name, presence: true
   validates :slug, presence: true

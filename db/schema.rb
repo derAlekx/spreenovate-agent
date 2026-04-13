@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_04_195031) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_13_130742) do
   create_table "credentials", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "description"
@@ -44,6 +44,21 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_04_195031) do
     t.index ["current_step_id"], name: "index_items_on_current_step_id"
     t.index ["pipeline_id", "status"], name: "idx_items_pipeline_status"
     t.index ["pipeline_id"], name: "index_items_on_pipeline_id"
+  end
+
+  create_table "message_batches", force: :cascade do |t|
+    t.string "batch_api_id"
+    t.datetime "created_at", null: false
+    t.integer "failed_count", default: 0
+    t.json "item_ids"
+    t.integer "pipeline_id", null: false
+    t.integer "pipeline_step_id", null: false
+    t.integer "request_count", default: 0
+    t.string "status"
+    t.integer "succeeded_count", default: 0
+    t.datetime "updated_at", null: false
+    t.index ["pipeline_id"], name: "index_message_batches_on_pipeline_id"
+    t.index ["pipeline_step_id"], name: "index_message_batches_on_pipeline_step_id"
   end
 
   create_table "pipeline_steps", force: :cascade do |t|
@@ -89,6 +104,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_04_195031) do
   add_foreign_key "item_events", "pipeline_steps"
   add_foreign_key "items", "pipeline_steps", column: "current_step_id"
   add_foreign_key "items", "pipelines"
+  add_foreign_key "message_batches", "pipeline_steps"
+  add_foreign_key "message_batches", "pipelines"
   add_foreign_key "pipeline_steps", "pipelines"
   add_foreign_key "pipelines", "projects"
   add_foreign_key "project_credentials", "credentials"
