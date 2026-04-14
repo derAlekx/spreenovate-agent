@@ -9,23 +9,24 @@ module Connectors
       end
 
       # Single synchronous call (legacy, no caching)
-      def call(model:, system:, prompt:, tools: [], max_tokens: 4096)
+      def call(model:, system:, prompt:, tools: [], max_tokens: 4096, temperature: nil)
         messages = [{ role: "user", content: prompt }]
-        body = build_body(model: model, system: system, messages: messages, tools: tools, max_tokens: max_tokens)
+        body = build_body(model: model, system: system, messages: messages, tools: tools, max_tokens: max_tokens, temperature: temperature)
 
         parsed = post_messages(body)
         extract_text(parsed)
       end
 
-      # Single synchronous call with prompt caching
-      # static_prompt gets cached, dynamic_prompt does not
-      def call_with_cache(model:, system:, static_prompt:, dynamic_prompt:, tools: [], max_tokens: 4096)
+      # Single synchronous call with prompt caching (automatic, top-level)
+      # Anthropic automatically caches the longest cacheable prefix
+      def call_with_cache(model:, system:, static_prompt:, dynamic_prompt:, tools: [], max_tokens: 4096, temperature: nil)
         content = [
-          { type: "text", text: static_prompt, cache_control: { type: "ephemeral" } },
+          { type: "text", text: static_prompt },
           { type: "text", text: dynamic_prompt }
         ]
         messages = [{ role: "user", content: content }]
-        body = build_body(model: model, system: system, messages: messages, tools: tools, max_tokens: max_tokens)
+        body = build_body(model: model, system: system, messages: messages, tools: tools, max_tokens: max_tokens, temperature: temperature)
+        body[:cache_control] = { type: "ephemeral" }
 
         parsed = post_messages(body)
         extract_text(parsed)
@@ -70,7 +71,7 @@ module Connectors
 
       private
 
-      def build_body(model:, system:, messages:, tools:, max_tokens:)
+      def build_body(model:, system:, messages:, tools:, max_tokens:, temperature: nil)
         body = {
           model: model,
           max_tokens: max_tokens,
@@ -78,6 +79,7 @@ module Connectors
           messages: messages
         }
         body[:tools] = tools if tools.any?
+        body[:temperature] = temperature if temperature
         body
       end
 

@@ -1,6 +1,6 @@
 class PipelineItemsController < ApplicationController
   before_action :set_pipeline
-  before_action :set_item, only: [:show, :update, :approve, :skip, :reset, :retry, :redraft, :send_email, :process_item]
+  before_action :set_item, only: [:show, :update, :approve, :skip, :reset, :retry, :redraft, :send_email, :process_item, :select_variant]
 
   def show
     redirect_to pipeline_path(@pipeline, anchor: dom_id(@item))
@@ -67,9 +67,10 @@ class PipelineItemsController < ApplicationController
     data = @item.data.dup
     data["draft"] ||= {}
 
-    # Preserve original AI draft before first human edit (for feedback loop)
-    unless data.key?("draft_original")
-      data["draft_original"] = data["draft"].slice("subject", "body")
+    # If editing from a variant, select that variant first
+    if params[:select_variant].present? && data["drafts"].present?
+      data["drafts"]["selected_variant"] = params[:select_variant]
+      data["drafts"]["selected_at"] = Time.current.iso8601
     end
 
     data["draft"]["subject"] = params[:subject] if params[:subject]
@@ -166,6 +167,51 @@ class PipelineItemsController < ApplicationController
 
     redirect_to pipeline_path(@pipeline, filter: params[:filter]),
       notice: "#{items.count} Items zurückgesetzt."
+  end
+
+  def select_variant
+    variant_name = params[:variant]
+    variants = @item.data.dig("drafts", "variants") || []
+    variant = variants.find { |v| v["variant"] == variant_name }
+
+    unless variant
+      redirect_to pipeline_path(@pipeline), alert: "Variante '#{variant_name}' nicht gefunden."
+      return
+    end
+
+    data = @item.data.dup
+    already_selected = data.dig("drafts", "selected_variant") == variant_name
+
+    data["drafts"]["selected_variant"] = variant_name
+    data["drafts"]["selected_at"] = Time.current.iso8601
+
+    # Only overwrite draft if selecting a DIFFERENT variant
+    # If same variant is already selected, keep the (possibly edited) draft
+    unless already_selected
+      data["draft"] = {
+        "subject" => variant["subject"],
+        "body" => variant["body"],
+        "drafted_at" => variant["drafted_at"],
+        "version" => data.dig("draft", "version") || 1
+      }
+    end
+
+    # If approve=true, select + approve in one click
+    if params[:approve] == "true"
+      @item.update!(data: data, status: "approved")
+      @item.item_events.create!(
+        pipeline_step: @item.current_step,
+        event_type: "human_approved",
+        note: "Variante #{variant_name.upcase} gewählt"
+      )
+    else
+      @item.update!(data: data)
+    end
+
+    respond_to do |format|
+      format.turbo_stream
+      format.html { redirect_to pipeline_path(@pipeline) }
+    end
   end
 
   private

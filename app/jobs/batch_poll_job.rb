@@ -42,33 +42,59 @@ class BatchPollJob < ApplicationJob
     results = client.get_batch_results(batch_id: message_batch.batch_api_id)
     step = message_batch.pipeline_step
     pipeline = message_batch.pipeline
+    task = step.config["task"]
 
     succeeded = 0
     failed = 0
     succeeded_item_ids = []
 
-    results.each do |result|
-      item_id = result["custom_id"].to_i
-      item = Item.find_by(id: item_id)
-      next unless item
+    if task == "draft"
+      # Draft results: group by item ID (custom_id format: "53_a", "53_b")
+      grouped = results.group_by { |r| r["custom_id"].split("_").first.to_i }
 
-      begin
-        StepExecutors::AiAgent.apply_batch_result(item, step, result)
-        if result.dig("result", "type") == "succeeded"
+      grouped.each do |item_id, variant_results|
+        item = Item.find_by(id: item_id)
+        next unless item
+
+        # Annotate each result with variant name and temperature
+        variant_results.each do |vr|
+          variant_letter = vr["custom_id"].split("_").last
+          vr["variant"] = variant_letter
+          vr["temperature"] = variant_letter == "a" ? StepExecutors::AiAgent::VARIANT_A_TEMPERATURE : StepExecutors::AiAgent::VARIANT_B_TEMPERATURE
+        end
+
+        begin
+          StepExecutors::AiAgent.apply_batch_result(item, step, variant_results)
           succeeded += 1
           succeeded_item_ids << item.id
-        else
+        rescue => e
           failed += 1
+          Rails.logger.error("BatchPollJob: Failed to apply draft variants for Item##{item_id}: #{e.class}: #{e.message}")
+          item.update!(status: "failed")
+          item.item_events.create!(pipeline_step: step, event_type: "error", note: "Batch result error: #{e.class}: #{e.message}")
         end
-      rescue => e
-        failed += 1
-        Rails.logger.error("BatchPollJob: Failed to apply result for Item##{item_id}: #{e.class}: #{e.message}")
-        item.update!(status: "failed")
-        item.item_events.create!(
-          pipeline_step: step,
-          event_type: "error",
-          note: "Batch result error: #{e.class}: #{e.message}"
-        )
+      end
+    else
+      # Research results: 1 result per item (custom_id = item ID)
+      results.each do |result|
+        item_id = result["custom_id"].to_i
+        item = Item.find_by(id: item_id)
+        next unless item
+
+        begin
+          StepExecutors::AiAgent.apply_batch_result(item, step, result)
+          if result.dig("result", "type") == "succeeded"
+            succeeded += 1
+            succeeded_item_ids << item.id
+          else
+            failed += 1
+          end
+        rescue => e
+          failed += 1
+          Rails.logger.error("BatchPollJob: Failed to apply result for Item##{item_id}: #{e.class}: #{e.message}")
+          item.update!(status: "failed")
+          item.item_events.create!(pipeline_step: step, event_type: "error", note: "Batch result error: #{e.class}: #{e.message}")
+        end
       end
     end
 

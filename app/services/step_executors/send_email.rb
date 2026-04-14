@@ -44,6 +44,11 @@ module StepExecutors
 
       data = item.data.dup
       data["sent_at"] = Time.current.iso8601
+      data["sent_email"] = {
+        "subject" => subject,
+        "body" => body,
+        "sent_at" => data["sent_at"]
+      }
       item.update!(data: data, status: "sent")
 
       item.item_events.create!(

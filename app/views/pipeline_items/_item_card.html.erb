@@ -59,16 +59,89 @@
     </details>
   <% end %>
 
-  <%# Draft %>
-  <% if item.data["draft"].present? %>
+  <% variants = item.data.dig("drafts", "variants") %>
+  <% selected_variant = item.data.dig("drafts", "selected_variant") %>
+  <% has_ab_variants = variants.present? && variants.size > 1 %>
+
+  <%# A/B Variant Review: tabs with actions under each variant %>
+  <% if has_ab_variants && item.status == "review" %>
+    <% default_tab = selected_variant ? variants.index { |v| v["variant"] == selected_variant } || 0 : 0 %>
+    <div class="mb-4" data-controller="variant-tabs">
+      <div class="flex gap-1 mb-2">
+        <% variants.each_with_index do |v, i| %>
+          <% is_active_tab = i == default_tab %>
+          <button type="button"
+            data-action="variant-tabs#switch"
+            data-variant-tabs-index-param="<%= i %>"
+            data-variant-tabs-target="tab"
+            class="px-3 py-1 rounded-md text-xs font-medium transition
+              <%= is_active_tab ? 'bg-gray-900 dark:bg-neutral-200 text-white dark:text-neutral-900' : 'bg-gray-100 dark:bg-neutral-800 text-gray-500 dark:text-neutral-400 hover:bg-gray-200 dark:hover:bg-neutral-700' %>">
+            Variante <%= v["variant"].upcase %>
+          </button>
+        <% end %>
+      </div>
+
+      <% variants.each_with_index do |v, i| %>
+        <%# If this variant was selected and edited, show the edited version %>
+        <% is_edited = selected_variant == v["variant"] && item.data["draft"].present? %>
+        <% display_subject = is_edited ? item.data.dig("draft", "subject") : v["subject"] %>
+        <% display_body = is_edited ? item.data.dig("draft", "body") : v["body"] %>
+        <% was_modified = is_edited && (display_subject != v["subject"] || display_body != v["body"]) %>
+
+        <div data-variant-tabs-target="panel" class="<%= 'hidden' if i != default_tab %>">
+          <%# Read mode %>
+          <div data-variant-tabs-target="display<%= i %>">
+            <% if was_modified %>
+              <p class="text-xs text-amber-500 dark:text-amber-400 mb-1">editiert</p>
+            <% end %>
+            <p class="text-sm font-medium text-gray-700 dark:text-neutral-300 mb-1"><%= display_subject %></p>
+            <div class="text-sm text-gray-500 dark:text-neutral-500 whitespace-pre-line bg-gray-50 dark:bg-neutral-950 rounded-lg p-3 border border-gray-200 dark:border-neutral-800 mb-2"><%= display_body %></div>
+          </div>
+
+          <%# Edit mode (hidden by default) %>
+          <div data-variant-tabs-target="edit<%= i %>" class="hidden">
+            <%= form_tag pipeline_item_path(pipeline, item), method: :patch, data: { turbo_frame: dom_id(item) } do %>
+              <%= hidden_field_tag :select_variant, v["variant"] %>
+              <div class="mb-2">
+                <label class="block text-xs text-gray-400 dark:text-neutral-500 mb-1">Subject</label>
+                <%= text_field_tag :subject, display_subject,
+                  class: "w-full bg-white dark:bg-neutral-950 border border-gray-300 dark:border-neutral-700 rounded-lg px-3 py-1.5 text-sm text-gray-900 dark:text-neutral-200 focus:outline-none focus:border-gray-500 dark:focus:border-neutral-500" %>
+              </div>
+              <div class="mb-2">
+                <label class="block text-xs text-gray-400 dark:text-neutral-500 mb-1">Body</label>
+                <%= text_area_tag :body, display_body,
+                  rows: 8,
+                  class: "w-full bg-white dark:bg-neutral-950 border border-gray-300 dark:border-neutral-700 rounded-lg px-3 py-1.5 text-sm text-gray-900 dark:text-neutral-200 focus:outline-none focus:border-gray-500 dark:focus:border-neutral-500" %>
+              </div>
+              <div class="flex gap-2">
+                <%= submit_tag "Save", class: "bg-amber-600 dark:bg-amber-700 text-white px-3 py-1.5 rounded-lg text-sm hover:bg-amber-500 dark:hover:bg-amber-600 cursor-pointer transition" %>
+                <button type="button" data-action="variant-tabs#cancelEdit" data-variant-tabs-index-param="<%= i %>" class="text-gray-500 dark:text-neutral-500 border border-gray-300 dark:border-neutral-700 px-3 py-1.5 rounded-lg text-sm hover:text-gray-700 dark:hover:text-neutral-300 hover:border-gray-400 dark:hover:border-neutral-500 transition">Cancel</button>
+              </div>
+            <% end %>
+          </div>
+
+          <%# Actions for this variant %>
+          <div class="flex items-center gap-2 pt-2">
+            <%= button_to "Approve", select_variant_pipeline_item_path(pipeline, item, variant: v["variant"], approve: true),
+              class: "bg-emerald-600 dark:bg-emerald-800 text-white dark:text-emerald-100 px-4 py-1.5 rounded-lg text-sm font-medium hover:bg-emerald-500 dark:hover:bg-emerald-700 transition" %>
+            <%= button_to "Skip", skip_pipeline_item_path(pipeline, item),
+              class: "text-gray-500 dark:text-neutral-500 border border-gray-300 dark:border-neutral-700 px-4 py-1.5 rounded-lg text-sm hover:text-gray-700 dark:hover:text-neutral-300 hover:border-gray-400 dark:hover:border-neutral-500 transition" %>
+            <button type="button" data-action="variant-tabs#toggleEdit" data-variant-tabs-index-param="<%= i %>" class="text-gray-500 dark:text-neutral-500 border border-gray-300 dark:border-neutral-700 px-4 py-1.5 rounded-lg text-sm hover:text-gray-700 dark:hover:text-neutral-300 hover:border-gray-400 dark:hover:border-neutral-500 transition">Edit</button>
+            <%= button_to "Redraft", redraft_pipeline_item_path(pipeline, item),
+              class: "text-gray-500 dark:text-neutral-500 border border-gray-300 dark:border-neutral-700 px-4 py-1.5 rounded-lg text-sm hover:text-gray-700 dark:hover:text-neutral-300 hover:border-gray-400 dark:hover:border-neutral-500 transition" %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+
+  <% elsif item.data["draft"].present? %>
+    <%# Single draft (no variants, or non-review status) %>
     <div class="mb-4">
-      <%# Read mode %>
       <div data-inline-edit-target="display">
         <p class="text-sm font-medium text-gray-700 dark:text-neutral-300 mb-1"><%= item.data.dig("draft", "subject") %></p>
         <div class="text-sm text-gray-500 dark:text-neutral-500 whitespace-pre-line bg-gray-50 dark:bg-neutral-950 rounded-lg p-3 border border-gray-200 dark:border-neutral-800"><%= item.data.dig("draft", "body") %></div>
       </div>
 
-      <%# Edit mode %>
       <div data-inline-edit-target="form" class="hidden">
         <%= form_tag pipeline_item_path(pipeline, item), method: :patch, data: { turbo_frame: dom_id(item) } do %>
           <div class="mb-2">
@@ -88,16 +161,6 @@
           </div>
         <% end %>
       </div>
-    </div>
-  <% end %>
-
-  <%# Pending actions %>
-  <% if item.status == "pending" %>
-    <div class="flex items-center gap-2 pt-3 border-t border-gray-100 dark:border-neutral-800">
-      <%= button_to "Process", process_item_pipeline_item_path(pipeline, item),
-        class: "bg-blue-600 dark:bg-blue-700 text-white px-4 py-1.5 rounded-lg text-sm font-medium hover:bg-blue-500 dark:hover:bg-blue-600 transition" %>
-      <%= button_to "Skip", skip_pipeline_item_path(pipeline, item),
-        class: "text-gray-500 dark:text-neutral-500 border border-gray-300 dark:border-neutral-700 px-4 py-1.5 rounded-lg text-sm hover:text-gray-700 dark:hover:text-neutral-300 hover:border-gray-400 dark:hover:border-neutral-500 transition" %>
     </div>
   <% end %>
 
@@ -122,40 +185,49 @@
     <% end %>
   <% end %>
 
-  <%# Actions %>
-  <% if item.status == "review" %>
-    <div class="flex items-center gap-2 pt-3 border-t border-gray-100 dark:border-neutral-800">
-      <%= button_to "Approve", approve_pipeline_item_path(pipeline, item),
-        class: "bg-emerald-600 dark:bg-emerald-800 text-white dark:text-emerald-100 px-4 py-1.5 rounded-lg text-sm font-medium hover:bg-emerald-500 dark:hover:bg-emerald-700 transition" %>
-      <%= button_to "Skip", skip_pipeline_item_path(pipeline, item),
-        class: "text-gray-500 dark:text-neutral-500 border border-gray-300 dark:border-neutral-700 px-4 py-1.5 rounded-lg text-sm hover:text-gray-700 dark:hover:text-neutral-300 hover:border-gray-400 dark:hover:border-neutral-500 transition" %>
-      <% if item.data["draft"].present? %>
-        <button type="button" data-action="inline-edit#toggle" class="text-gray-500 dark:text-neutral-500 border border-gray-300 dark:border-neutral-700 px-4 py-1.5 rounded-lg text-sm hover:text-gray-700 dark:hover:text-neutral-300 hover:border-gray-400 dark:hover:border-neutral-500 transition">Edit</button>
-        <%= button_to "Redraft", redraft_pipeline_item_path(pipeline, item),
+  <%# Actions (only for non-variant review or other statuses) %>
+  <% unless has_ab_variants && item.status == "review" %>
+    <% if item.status == "pending" %>
+      <div class="flex items-center gap-2 pt-3 border-t border-gray-100 dark:border-neutral-800">
+        <%= button_to "Process", process_item_pipeline_item_path(pipeline, item),
+          class: "bg-blue-600 dark:bg-blue-700 text-white px-4 py-1.5 rounded-lg text-sm font-medium hover:bg-blue-500 dark:hover:bg-blue-600 transition" %>
+        <%= button_to "Skip", skip_pipeline_item_path(pipeline, item),
           class: "text-gray-500 dark:text-neutral-500 border border-gray-300 dark:border-neutral-700 px-4 py-1.5 rounded-lg text-sm hover:text-gray-700 dark:hover:text-neutral-300 hover:border-gray-400 dark:hover:border-neutral-500 transition" %>
-      <% end %>
-    </div>
-  <% elsif item.status == "approved" %>
-    <div class="flex items-center gap-2 pt-3 border-t border-gray-100 dark:border-neutral-800">
-      <% can_send = pipeline.remaining_sends_today > 0 %>
-      <%= button_to "Send", send_email_pipeline_item_path(pipeline, item),
-        class: "px-4 py-1.5 rounded-lg text-sm font-medium transition #{can_send ? 'bg-amber-600 dark:bg-amber-700 text-white hover:bg-amber-500 dark:hover:bg-amber-600' : 'bg-gray-200 dark:bg-neutral-800 text-gray-400 dark:text-neutral-600 cursor-not-allowed'}",
-        disabled: !can_send,
-        data: can_send ? { turbo_confirm: "Email an #{item.data['email']} senden?" } : {} %>
-      <%= button_to "Reset", reset_pipeline_item_path(pipeline, item),
-        class: "text-gray-500 dark:text-neutral-500 border border-gray-300 dark:border-neutral-700 px-3 py-1.5 rounded-lg text-sm hover:text-gray-700 dark:hover:text-neutral-300 hover:border-gray-400 dark:hover:border-neutral-500 transition" %>
-    </div>
-  <% elsif item.status == "rejected" %>
-    <div class="flex items-center gap-2 pt-3 border-t border-gray-100 dark:border-neutral-800">
-      <%= button_to "Reset", reset_pipeline_item_path(pipeline, item),
-        class: "text-gray-500 dark:text-neutral-500 border border-gray-300 dark:border-neutral-700 px-3 py-1.5 rounded-lg text-sm hover:text-gray-700 dark:hover:text-neutral-300 hover:border-gray-400 dark:hover:border-neutral-500 transition" %>
-    </div>
-  <% elsif item.status == "failed" %>
-    <div class="flex items-center gap-2 pt-3 border-t border-gray-100 dark:border-neutral-800">
-      <%= button_to "Retry", retry_pipeline_item_path(pipeline, item),
-        class: "bg-amber-600 dark:bg-amber-700 text-white px-4 py-1.5 rounded-lg text-sm font-medium hover:bg-amber-500 dark:hover:bg-amber-600 transition" %>
-      <%= button_to "Skip", skip_pipeline_item_path(pipeline, item),
-        class: "text-gray-500 dark:text-neutral-500 border border-gray-300 dark:border-neutral-700 px-4 py-1.5 rounded-lg text-sm hover:text-gray-700 dark:hover:text-neutral-300 hover:border-gray-400 dark:hover:border-neutral-500 transition" %>
-    </div>
+      </div>
+    <% elsif item.status == "review" %>
+      <div class="flex items-center gap-2 pt-3 border-t border-gray-100 dark:border-neutral-800">
+        <%= button_to "Approve", approve_pipeline_item_path(pipeline, item),
+          class: "bg-emerald-600 dark:bg-emerald-800 text-white dark:text-emerald-100 px-4 py-1.5 rounded-lg text-sm font-medium hover:bg-emerald-500 dark:hover:bg-emerald-700 transition" %>
+        <%= button_to "Skip", skip_pipeline_item_path(pipeline, item),
+          class: "text-gray-500 dark:text-neutral-500 border border-gray-300 dark:border-neutral-700 px-4 py-1.5 rounded-lg text-sm hover:text-gray-700 dark:hover:text-neutral-300 hover:border-gray-400 dark:hover:border-neutral-500 transition" %>
+        <% if item.data["draft"].present? %>
+          <button type="button" data-action="inline-edit#toggle" class="text-gray-500 dark:text-neutral-500 border border-gray-300 dark:border-neutral-700 px-4 py-1.5 rounded-lg text-sm hover:text-gray-700 dark:hover:text-neutral-300 hover:border-gray-400 dark:hover:border-neutral-500 transition">Edit</button>
+          <%= button_to "Redraft", redraft_pipeline_item_path(pipeline, item),
+            class: "text-gray-500 dark:text-neutral-500 border border-gray-300 dark:border-neutral-700 px-4 py-1.5 rounded-lg text-sm hover:text-gray-700 dark:hover:text-neutral-300 hover:border-gray-400 dark:hover:border-neutral-500 transition" %>
+        <% end %>
+      </div>
+    <% elsif item.status == "approved" %>
+      <div class="flex items-center gap-2 pt-3 border-t border-gray-100 dark:border-neutral-800">
+        <% can_send = pipeline.remaining_sends_today > 0 %>
+        <%= button_to "Send", send_email_pipeline_item_path(pipeline, item),
+          class: "px-4 py-1.5 rounded-lg text-sm font-medium transition #{can_send ? 'bg-amber-600 dark:bg-amber-700 text-white hover:bg-amber-500 dark:hover:bg-amber-600' : 'bg-gray-200 dark:bg-neutral-800 text-gray-400 dark:text-neutral-600 cursor-not-allowed'}",
+          disabled: !can_send,
+          data: can_send ? { turbo_confirm: "Email an #{item.data['email']} senden?" } : {} %>
+        <%= button_to "Reset", reset_pipeline_item_path(pipeline, item),
+          class: "text-gray-500 dark:text-neutral-500 border border-gray-300 dark:border-neutral-700 px-3 py-1.5 rounded-lg text-sm hover:text-gray-700 dark:hover:text-neutral-300 hover:border-gray-400 dark:hover:border-neutral-500 transition" %>
+      </div>
+    <% elsif item.status == "rejected" %>
+      <div class="flex items-center gap-2 pt-3 border-t border-gray-100 dark:border-neutral-800">
+        <%= button_to "Reset", reset_pipeline_item_path(pipeline, item),
+          class: "text-gray-500 dark:text-neutral-500 border border-gray-300 dark:border-neutral-700 px-3 py-1.5 rounded-lg text-sm hover:text-gray-700 dark:hover:text-neutral-300 hover:border-gray-400 dark:hover:border-neutral-500 transition" %>
+      </div>
+    <% elsif item.status == "failed" %>
+      <div class="flex items-center gap-2 pt-3 border-t border-gray-100 dark:border-neutral-800">
+        <%= button_to "Retry", retry_pipeline_item_path(pipeline, item),
+          class: "bg-amber-600 dark:bg-amber-700 text-white px-4 py-1.5 rounded-lg text-sm font-medium hover:bg-amber-500 dark:hover:bg-amber-600 transition" %>
+        <%= button_to "Skip", skip_pipeline_item_path(pipeline, item),
+          class: "text-gray-500 dark:text-neutral-500 border border-gray-300 dark:border-neutral-700 px-4 py-1.5 rounded-lg text-sm hover:text-gray-700 dark:hover:text-neutral-300 hover:border-gray-400 dark:hover:border-neutral-500 transition" %>
+      </div>
+    <% end %>
   <% end %>
 </div>

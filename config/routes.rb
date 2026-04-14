@@ -32,6 +32,7 @@ Rails.application.routes.draw do
         post :redraft
         post :send_email
         post :process_item
+        post :select_variant
       end
       collection do
         post :bulk_approve

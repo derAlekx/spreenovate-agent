@@ -13,9 +13,9 @@ class BatchSubmitJob < ApplicationJob
     items = pipeline.items.where(id: item_ids, current_step_id: step_id)
     return if items.empty?
 
-    # Build batch requests
-    requests = items.map do |item|
-      StepExecutors::AiAgent.build_batch_request(item, step)
+    # Build batch requests (draft step returns 2 per item for A/B)
+    requests = items.flat_map do |item|
+      StepExecutors::AiAgent.build_batch_requests(item, step)
     end
 
     # Create tracking record BEFORE submitting to API
