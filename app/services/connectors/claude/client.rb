@@ -17,8 +17,13 @@ module Connectors
         extract_text(parsed)
       end
 
-      # Single synchronous call with prompt caching (automatic, top-level)
-      # Anthropic automatically caches the longest cacheable prefix
+      # Single synchronous call with prompt caching.
+      # cache_control is placed at the TOP-LEVEL so Anthropic automatically caches
+      # the longest valid prefix. This is important for us: our static block alone
+      # is ~2300 tokens (Draft) / ~500 tokens (Research), UNDER the 4096-token minimum
+      # for Opus 4.6. Block-level cache_control on our static part would silently
+      # not cache. Top-level lets Anthropic include system+static+dynamic in the
+      # cache prefix, which crosses 4096 tokens once the research summary is in.
       def call_with_cache(model:, system:, static_prompt:, dynamic_prompt:, tools: [], max_tokens: 4096, temperature: nil)
         content = [
           { type: "text", text: static_prompt },

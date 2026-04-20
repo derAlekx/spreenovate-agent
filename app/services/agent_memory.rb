@@ -1,8 +1,17 @@
 class AgentMemory
   BASE_PATH = Rails.root.join("agent_memory")
 
-  def self.load_prompt(pipeline, task)
+  def self.load_prompt(pipeline, task, variant: nil)
     dir = memory_dir(pipeline)
+
+    if variant.present?
+      # Explicit variant requested — NO fallback. Return empty if missing.
+      # Otherwise we'd silently run variant B with variant A's prompt.
+      variant_file = dir.join("prompt_#{task}_variant_#{variant}.md")
+      return read_file(variant_file)
+    end
+
+    # No variant specified: load default
     read_file(dir.join("prompt_#{task}.md"))
   end
 

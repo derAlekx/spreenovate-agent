@@ -5,7 +5,8 @@
       "WebSearch",
       "WebFetch(domain:apolloio.github.io)",
       "WebFetch(domain:knowledge.apollo.io)",
-      "WebFetch(domain:spreenovate.de)"
+      "WebFetch(domain:spreenovate.de)",
+      "Bash(bin/rails runner:*)"
     ]
   }
 }

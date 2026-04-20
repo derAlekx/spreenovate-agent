@@ -20,16 +20,17 @@ end
 if pipeline.pipeline_steps.empty?
   pipeline.pipeline_steps.create!([
     { name: "Import",   step_type: "csv_import",    position: 1, config: {} },
-    { name: "Research", step_type: "ai_agent",      position: 2, config: { "model" => "claude-sonnet-4-20250514", "task" => "research", "enable_web_search" => true } },
-    { name: "Draft",    step_type: "ai_agent",      position: 3, config: { "model" => "claude-sonnet-4-20250514", "task" => "draft", "uses_memory" => true } },
-    { name: "Review",   step_type: "human_review",  position: 4, config: {} },
-    { name: "Send",     step_type: "send_email",    position: 5, config: { "from_address" => "alexander@spreenovate.de" } }
+    { name: "Qualify",  step_type: "ai_agent",      position: 2, config: { "model" => "claude-haiku-4-5", "task" => "qualify", "enable_web_search" => false } },
+    { name: "Research", step_type: "ai_agent",      position: 3, config: { "model" => "claude-opus-4-6", "task" => "research", "enable_web_search" => true } },
+    { name: "Draft",    step_type: "ai_agent",      position: 4, config: { "model" => "claude-opus-4-7", "task" => "draft", "enable_web_search" => false } },
+    { name: "Review",   step_type: "human_review",  position: 5, config: {} },
+    { name: "Send",     step_type: "send_email",    position: 6, config: { "from_address" => "alexander@spreenovate.de" } }
   ])
 end
 
 # Test-Items für Phase 3 Review UI
 import_step = pipeline.pipeline_steps.find_by(position: 1)
-review_step = pipeline.pipeline_steps.find_by(position: 4)
+review_step = pipeline.pipeline_steps.find_by(name: "Review")
 
 unless pipeline.items.exists?
   pipeline.items.create!([

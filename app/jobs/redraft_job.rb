@@ -11,13 +11,20 @@ class RedraftJob < ApplicationJob
 
     raise "Kein API Key für Projekt #{project.name}" unless api_key
 
-    prompt_template = AgentMemory.load_prompt(item.pipeline, "draft")
-    raise "Kein Draft-Prompt gefunden" if prompt_template.blank?
+    # Load both prompt variants (A = Opus model, B = Sonnet model for comparison)
+    prompt_a = AgentMemory.load_prompt(item.pipeline, "draft")
+    prompt_b = AgentMemory.load_prompt(item.pipeline, "draft", variant: "b")
+
+    raise "Kein Draft-Prompt (A) gefunden" if prompt_a.blank?
+    raise "Kein Draft-Prompt (B) gefunden" if prompt_b.blank?
 
     old_draft = item.data["draft"] || {}
-    previous_email = "subject: #{old_draft['subject']}\nbody: #{old_draft['body']}"
-
-    static_part, dynamic_part = prompt_template.split(StepExecutors::AiAgent::PROMPT_SEPARATOR, 2)
+    # Use non-standard markers to avoid polluting the parser's subject:/body: detection
+    previous_email = <<~EMAIL
+      [Alter Betreff] #{old_draft['subject']}
+      [Alter Body]
+      #{old_draft['body']}
+    EMAIL
 
     redraft_addition = <<~ADDITION
 
@@ -30,17 +37,14 @@ class RedraftJob < ApplicationJob
     ADDITION
 
     client = ClaudeClient.new(api_key: api_key)
-    model = step.config["model"] || "claude-opus-4-6"
+    model_a = step.config["model"] || "claude-opus-4-7"
+    model_b = StepExecutors::AiAgent::VARIANT_B_MODEL
 
-    # Generate 2 variants (A: standard, B: bolder)
-    variant_a = generate_variant(client, model, static_part, dynamic_part, item, redraft_addition,
-      system: StepExecutors::AiAgent::SYSTEM_PROMPT,
+    variant_a = generate_variant(client, model_a, prompt_a, item, redraft_addition,
       temperature: StepExecutors::AiAgent::VARIANT_A_TEMPERATURE,
       variant_name: "a")
 
-    variant_b = generate_variant(client, model, static_part, dynamic_part, item, redraft_addition,
-      system: StepExecutors::AiAgent::SYSTEM_PROMPT,
-      extra_instruction: StepExecutors::AiAgent::VARIANT_B_INSTRUCTION,
+    variant_b = generate_variant(client, model_b, prompt_b, item, redraft_addition,
       temperature: StepExecutors::AiAgent::VARIANT_B_TEMPERATURE,
       variant_name: "b")
 
@@ -79,14 +83,15 @@ class RedraftJob < ApplicationJob
 
   private
 
-  def generate_variant(client, model, static_part, dynamic_part, item, redraft_addition, system:, temperature:, variant_name:, extra_instruction: nil)
+  def generate_variant(client, model, prompt_template, item, redraft_addition, temperature:, variant_name:)
+    static_part, dynamic_part = prompt_template.split(StepExecutors::AiAgent::PROMPT_SEPARATOR, 2)
+
     if dynamic_part
       dynamic_interpolated = StepExecutors::AiAgent.interpolate_template(dynamic_part, item)
       dynamic_content = dynamic_interpolated + redraft_addition
-      dynamic_content += extra_instruction if extra_instruction
       result = client.call_with_cache(
         model: model,
-        system: system,
+        system: StepExecutors::AiAgent::SYSTEM_PROMPT,
         static_prompt: static_part.strip,
         dynamic_prompt: dynamic_content,
         tools: [],
@@ -94,25 +99,23 @@ class RedraftJob < ApplicationJob
       )
     else
       prompt = StepExecutors::AiAgent.interpolate_template(static_part, item) + redraft_addition
-      prompt += extra_instruction if extra_instruction
       result = client.call(
         model: model,
-        system: system,
+        system: StepExecutors::AiAgent::SYSTEM_PROMPT,
         prompt: prompt,
         tools: [],
         temperature: temperature
       )
     end
 
-    text = result[:text]
-    subject = text.match(/subject:\s*(.+)/i)&.captures&.first&.strip || "Kein Betreff"
-    body = text.match(/body:\s*(.+)/mi)&.captures&.first&.strip || text
+    subject, body = StepExecutors::AiAgent.extract_subject_and_body(result[:text])
 
     {
       "variant" => variant_name,
       "subject" => strip_markdown(subject),
       "body" => strip_markdown(body),
       "temperature" => temperature,
+      "model" => model,
       "drafted_at" => Time.current.iso8601
     }
   end

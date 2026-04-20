@@ -17,20 +17,44 @@
         <p class="text-sm text-gray-400 dark:text-neutral-600 mt-0.5"><%= item.data["email"] %></p>
       <% end %>
     </div>
-    <span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium
-      <%= case item.status
-          when 'pending' then 'bg-gray-100 dark:bg-neutral-800 text-gray-500 dark:text-neutral-400'
-          when 'processing' then 'bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400'
-          when 'review' then 'bg-amber-50 dark:bg-amber-950 text-amber-600 dark:text-amber-400'
-          when 'approved' then 'bg-emerald-50 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400'
-          when 'rejected' then 'bg-gray-100 dark:bg-neutral-800 text-gray-400 dark:text-neutral-500'
-          when 'sent' then 'bg-emerald-50 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-300'
-          when 'failed' then 'bg-red-50 dark:bg-red-950 text-red-600 dark:text-red-400'
-          else 'bg-gray-100 dark:bg-neutral-800 text-gray-500 dark:text-neutral-400'
-          end %>">
-      <%= item.status %>
-    </span>
+    <div class="flex items-center gap-2">
+      <% fit_score = item.data.dig("qualify", "score") %>
+      <% if fit_score %>
+        <% fit_color = case fit_score
+             when 5 then 'bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-400'
+             when 4 then 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400'
+             when 3 then 'bg-amber-50 dark:bg-amber-950 text-amber-700 dark:text-amber-400'
+             when 2 then 'bg-orange-50 dark:bg-orange-950 text-orange-700 dark:text-orange-400'
+             when 1 then 'bg-red-50 dark:bg-red-950 text-red-700 dark:text-red-400'
+             else 'bg-gray-100 dark:bg-neutral-800 text-gray-500 dark:text-neutral-400'
+             end %>
+        <span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium <%= fit_color %>"
+          title="<%= item.data.dig('qualify', 'reason') %>">
+          Fit <%= fit_score %>/5
+        </span>
+      <% end %>
+      <span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium
+        <%= case item.status
+            when 'pending' then 'bg-gray-100 dark:bg-neutral-800 text-gray-500 dark:text-neutral-400'
+            when 'processing' then 'bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400'
+            when 'review' then 'bg-amber-50 dark:bg-amber-950 text-amber-600 dark:text-amber-400'
+            when 'approved' then 'bg-emerald-50 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400'
+            when 'rejected' then 'bg-gray-100 dark:bg-neutral-800 text-gray-400 dark:text-neutral-500'
+            when 'sent' then 'bg-emerald-50 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-300'
+            when 'failed' then 'bg-red-50 dark:bg-red-950 text-red-600 dark:text-red-400'
+            else 'bg-gray-100 dark:bg-neutral-800 text-gray-500 dark:text-neutral-400'
+            end %>">
+        <%= item.status %>
+      </span>
+    </div>
   </div>
+
+  <%# Qualify reason (shown when fit_score is set) %>
+  <% if item.data.dig("qualify", "reason").present? %>
+    <p class="mb-3 text-xs text-gray-500 dark:text-neutral-500">
+      <span class="text-gray-400 dark:text-neutral-600">Fit-Begründung:</span> <%= item.data.dig("qualify", "reason") %>
+    </p>
+  <% end %>
 
   <%# Research %>
   <% if item.data["research"].present? %>
@@ -63,20 +87,21 @@
   <% selected_variant = item.data.dig("drafts", "selected_variant") %>
   <% has_ab_variants = variants.present? && variants.size > 1 %>
 
-  <%# A/B Variant Review: tabs with actions under each variant %>
+  <%# A/B Variant Review: tabs with actions + shared comment box for Mark Excellent flow %>
   <% if has_ab_variants && item.status == "review" %>
     <% default_tab = selected_variant ? variants.index { |v| v["variant"] == selected_variant } || 0 : 0 %>
-    <div class="mb-4" data-controller="variant-tabs">
+    <div class="mb-4" data-controller="variant-tabs send-comment">
       <div class="flex gap-1 mb-2">
         <% variants.each_with_index do |v, i| %>
           <% is_active_tab = i == default_tab %>
+          <% model_label = (v["model"] || "").include?("opus") ? "Opus" : ((v["model"] || "").include?("sonnet") ? "Sonnet" : "") %>
           <button type="button"
             data-action="variant-tabs#switch"
             data-variant-tabs-index-param="<%= i %>"
             data-variant-tabs-target="tab"
             class="px-3 py-1 rounded-md text-xs font-medium transition
               <%= is_active_tab ? 'bg-gray-900 dark:bg-neutral-200 text-white dark:text-neutral-900' : 'bg-gray-100 dark:bg-neutral-800 text-gray-500 dark:text-neutral-400 hover:bg-gray-200 dark:hover:bg-neutral-700' %>">
-            Variante <%= v["variant"].upcase %>
+            Variante <%= v["variant"].upcase %><% if model_label.present? %> · <span class="opacity-70"><%= model_label %></span><% end %>
           </button>
         <% end %>
       </div>
@@ -121,9 +146,22 @@
           </div>
 
           <%# Actions for this variant %>
-          <div class="flex items-center gap-2 pt-2">
-            <%= button_to "Approve", select_variant_pipeline_item_path(pipeline, item, variant: v["variant"], approve: true),
-              class: "bg-emerald-600 dark:bg-emerald-800 text-white dark:text-emerald-100 px-4 py-1.5 rounded-lg text-sm font-medium hover:bg-emerald-500 dark:hover:bg-emerald-700 transition" %>
+          <div class="flex flex-wrap items-center gap-2 pt-2">
+            <%= form_with url: select_variant_pipeline_item_path(pipeline, item, variant: v["variant"]), method: :post, data: { turbo_frame: dom_id(item) } do |f| %>
+              <%= hidden_field_tag :approve, "true" %>
+              <%= hidden_field_tag :user_comment, "", data: { send_comment_target: "hidden" } %>
+              <%= f.submit "Approve #{v["variant"].upcase}",
+                class: "bg-emerald-600 dark:bg-emerald-800 text-white dark:text-emerald-100 px-4 py-1.5 rounded-lg text-sm font-medium hover:bg-emerald-500 dark:hover:bg-emerald-700 transition cursor-pointer" %>
+            <% end %>
+
+            <%= form_with url: select_variant_pipeline_item_path(pipeline, item, variant: v["variant"]), method: :post, data: { turbo_frame: dom_id(item), turbo_confirm: "#{v["variant"].upcase} approven UND als herausragend markieren?" } do |f| %>
+              <%= hidden_field_tag :approve, "true" %>
+              <%= hidden_field_tag :mark_excellent, "true" %>
+              <%= hidden_field_tag :user_comment, "", data: { send_comment_target: "hidden" } %>
+              <%= f.submit "Approve #{v["variant"].upcase} + Mark Excellent",
+                class: "bg-emerald-800 dark:bg-emerald-900 text-white px-4 py-1.5 rounded-lg text-sm font-medium hover:bg-emerald-700 dark:hover:bg-emerald-800 transition cursor-pointer" %>
+            <% end %>
+
             <%= button_to "Skip", skip_pipeline_item_path(pipeline, item),
               class: "text-gray-500 dark:text-neutral-500 border border-gray-300 dark:border-neutral-700 px-4 py-1.5 rounded-lg text-sm hover:text-gray-700 dark:hover:text-neutral-300 hover:border-gray-400 dark:hover:border-neutral-500 transition" %>
             <button type="button" data-action="variant-tabs#toggleEdit" data-variant-tabs-index-param="<%= i %>" class="text-gray-500 dark:text-neutral-500 border border-gray-300 dark:border-neutral-700 px-4 py-1.5 rounded-lg text-sm hover:text-gray-700 dark:hover:text-neutral-300 hover:border-gray-400 dark:hover:border-neutral-500 transition">Edit</button>
@@ -132,6 +170,16 @@
           </div>
         </div>
       <% end %>
+
+      <%# Shared comment box — synced into all Approve forms via Stimulus %>
+      <div class="mt-3 pt-3 border-t border-gray-100 dark:border-neutral-800">
+        <label class="block text-xs text-gray-400 dark:text-neutral-500 mb-1">Kommentar (optional, wird mitgespeichert)</label>
+        <textarea
+          data-send-comment-target="input"
+          rows="2"
+          placeholder="Was gut/nicht gut? Hilft später beim Lernen."
+          class="w-full bg-white dark:bg-neutral-950 border border-gray-300 dark:border-neutral-700 rounded-lg px-3 py-1.5 text-sm text-gray-900 dark:text-neutral-200 focus:outline-none focus:border-gray-500 dark:focus:border-neutral-500"></textarea>
+      </div>
     </div>
 
   <% elsif item.data["draft"].present? %>
@@ -207,8 +255,16 @@
         <% end %>
       </div>
     <% elsif item.status == "approved" %>
+      <% can_send = pipeline.remaining_sends_today > 0 %>
+      <% if item.data["marked_excellent"] == true %>
+        <div class="mb-2 text-xs text-emerald-700 dark:text-emerald-400">★ Als herausragend markiert</div>
+      <% end %>
+      <% if item.data["user_comment"].present? %>
+        <div class="mb-2 p-2 bg-gray-50 dark:bg-neutral-950 border border-gray-200 dark:border-neutral-800 rounded text-xs text-gray-500 dark:text-neutral-400">
+          <span class="text-gray-400 dark:text-neutral-600">Kommentar:</span> <%= item.data["user_comment"] %>
+        </div>
+      <% end %>
       <div class="flex items-center gap-2 pt-3 border-t border-gray-100 dark:border-neutral-800">
-        <% can_send = pipeline.remaining_sends_today > 0 %>
         <%= button_to "Send", send_email_pipeline_item_path(pipeline, item),
           class: "px-4 py-1.5 rounded-lg text-sm font-medium transition #{can_send ? 'bg-amber-600 dark:bg-amber-700 text-white hover:bg-amber-500 dark:hover:bg-amber-600' : 'bg-gray-200 dark:bg-neutral-800 text-gray-400 dark:text-neutral-600 cursor-not-allowed'}",
           disabled: !can_send,

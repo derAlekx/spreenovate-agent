@@ -8,10 +8,17 @@ class PipelineItemsController < ApplicationController
 
   def approve
     review_step = @item.current_step
-    @item.update!(status: "approved")
+    data = @item.data.dup
+    data["user_comment"] = params[:user_comment] if params[:user_comment].present?
+    if params[:mark_excellent] == "true"
+      data["marked_excellent"] = true
+      data["marked_excellent_at"] = Time.current.iso8601
+    end
+    @item.update!(data: data, status: "approved")
     @item.item_events.create!(
       pipeline_step: review_step,
-      event_type: "human_approved"
+      event_type: "human_approved",
+      note: params[:mark_excellent] == "true" ? "marked excellent" : nil
     )
     respond_to do |format|
       format.turbo_stream
@@ -196,13 +203,21 @@ class PipelineItemsController < ApplicationController
       }
     end
 
-    # If approve=true, select + approve in one click
+    # If approve=true, select + approve in one click.
+    # Also handles optional comment and mark_excellent flag (set here, read by Few-Shot loader).
     if params[:approve] == "true"
+      data["user_comment"] = params[:user_comment] if params[:user_comment].present?
+      if params[:mark_excellent] == "true"
+        data["marked_excellent"] = true
+        data["marked_excellent_at"] = Time.current.iso8601
+      end
       @item.update!(data: data, status: "approved")
+      note_parts = ["Variante #{variant_name.upcase} gewählt"]
+      note_parts << "marked excellent" if params[:mark_excellent] == "true"
       @item.item_events.create!(
         pipeline_step: @item.current_step,
         event_type: "human_approved",
-        note: "Variante #{variant_name.upcase} gewählt"
+        note: note_parts.join(", ")
       )
     else
       @item.update!(data: data)
