@@ -85,6 +85,8 @@ class RedraftJob < ApplicationJob
 
   def generate_variant(client, model, prompt_template, item, redraft_addition, temperature:, variant_name:)
     static_part, dynamic_part = prompt_template.split(StepExecutors::AiAgent::PROMPT_SEPARATOR, 2)
+    # Opus 4.7+ deprecated the temperature parameter
+    effective_temp = StepExecutors::AiAgent.temperature_deprecated?(model) ? nil : temperature
 
     if dynamic_part
       dynamic_interpolated = StepExecutors::AiAgent.interpolate_template(dynamic_part, item)
@@ -95,7 +97,7 @@ class RedraftJob < ApplicationJob
         static_prompt: static_part.strip,
         dynamic_prompt: dynamic_content,
         tools: [],
-        temperature: temperature
+        temperature: effective_temp
       )
     else
       prompt = StepExecutors::AiAgent.interpolate_template(static_part, item) + redraft_addition
@@ -104,7 +106,7 @@ class RedraftJob < ApplicationJob
         system: StepExecutors::AiAgent::SYSTEM_PROMPT,
         prompt: prompt,
         tools: [],
-        temperature: temperature
+        temperature: effective_temp
       )
     end
 

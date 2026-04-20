@@ -119,6 +119,8 @@ module StepExecutors
 
     def call_with_prompt(client, static_part, dynamic_part, temperature: nil, model_override: nil)
       model = model_override || step.config["model"] || "claude-opus-4-7"
+      # Opus 4.7+ deprecated the temperature parameter
+      effective_temp = self.class.temperature_deprecated?(model) ? nil : temperature
       dynamic_content = dynamic_part ? interpolate_text(dynamic_part) : nil
 
       if dynamic_content
@@ -128,7 +130,7 @@ module StepExecutors
           static_prompt: static_part,
           dynamic_prompt: dynamic_content,
           tools: build_tools,
-          temperature: temperature
+          temperature: effective_temp
         )
       else
         client.call(
@@ -136,7 +138,7 @@ module StepExecutors
           system: SYSTEM_PROMPT,
           prompt: interpolate_text(static_part),
           tools: build_tools,
-          temperature: temperature
+          temperature: effective_temp
         )
       end
     end
@@ -205,17 +207,24 @@ module StepExecutors
         tools << { type: "web_search_20250305", name: "web_search", max_uses: 5 }
       end
 
+      resolved_model = model_override || step.config["model"] || "claude-opus-4-7"
+
       params = {
-        model: model_override || step.config["model"] || "claude-opus-4-7",
+        model: resolved_model,
         max_tokens: 4096,
         system: system_prompt,
         messages: messages,
         cache_control: { type: "ephemeral" }
       }
       params[:tools] = tools if tools.any?
-      params[:temperature] = temperature if temperature
+      # Opus 4.7+ deprecated the explicit temperature parameter
+      params[:temperature] = temperature if temperature && !temperature_deprecated?(resolved_model)
 
       { custom_id: custom_id.to_s, params: params }
+    end
+
+    def self.temperature_deprecated?(model)
+      model.to_s.match?(/opus-4-7|opus-5|opus-6/)
     end
 
     def self.apply_single_result(item, step, result)
