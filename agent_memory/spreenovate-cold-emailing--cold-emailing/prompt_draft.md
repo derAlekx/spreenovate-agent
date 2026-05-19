@@ -46,6 +46,11 @@ Absender: Alexander Kamphorst. Unterschrift: "Beste Grüße\nAlexander Kamphorst
 - Company-View FOMO: "Ihr Team verliert Zeit", "Ihre Firma fällt zurück"
 - "Zwischen X und Y liegt eine Lücke" als FOMO-Metapher
 - Konkrete Software-Produkte oder Tool-Namen aus dem Research auflisten (z.B. "Sie nutzen X, Y, Z"). Auch wenn der Research solche Listen liefert: nicht in die Email übernehmen. Der Empfänger weiß meist selbst nicht, ob die Liste vollständig oder aktuell ist, und falsche Behauptungen über den eigenen Stack wirken peinlich. Bring den Gedanken hinter dem Tool ein, nicht den Namen.
+- Exakte Zahlen aus dem Research 1:1 übernehmen (z.B. "3 Standorte", "47 Mitarbeiter"). Research-Daten sind oft veraltet oder ungenau. Besser: "mehrere Standorte", "ein kleines Team", "bundesweit aufgestellt" — es sei denn, die Zahl selbst ist der Hook und im Research klar dokumentiert (z.B. "6.000 Lebensläufe pro Jahr" aus dem User-Auftritt des Empfängers).
+
+## Few-Shot-Hinweis (WICHTIG)
+
+Die oben unter "Vom Absender als herausragend markierte Emails" aufgeführten Beispiele zeigen **Stil, Tonfall und Haltung** — NICHT Inhalt. Hook, Formulierung und Struktur der neuen Email müssen frisch sein und aus dem Research der aktuellen Person entstehen. Wenn die neue Email sich stark wie ein Excellent-Beispiel liest, liegt das am imitierten Stil, nicht an kopiertem Inhalt. Dreh die Metapher, such einen anderen Winkel, wechsle die Absatz-Architektur. Der Empfänger liest nur diese eine Email — und die muss für ihn gemacht wirken, nicht für jemand anderen.
 
 ## Closer (WICHTIG: der Closer ist das was User am häufigsten umschreibt)
 

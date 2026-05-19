@@ -46,8 +46,15 @@ module StepExecutors
         item.update!(status: "rejected")
         item.item_events.create!(
           pipeline_step: step,
-          event_type: "human_rejected",
+          event_type: "auto_rejected",
           note: "Auto-skip: fit_score=#{item.data.dig('qualify', 'score')} (#{item.data.dig('qualify', 'reason')})"
+        )
+      elsif task == "research" && item.data.dig("research", "skip") == true
+        item.update!(status: "rejected")
+        item.item_events.create!(
+          pipeline_step: step,
+          event_type: "auto_rejected",
+          note: "Auto-skip (Research): #{item.data.dig('research', 'skip_reason')}"
         )
       else
         item.advance_to_next_step!
@@ -240,13 +247,20 @@ module StepExecutors
           snapshot: item.data
         )
 
-        # Auto-skip if qualify scored too low
+        # Auto-skip if qualify scored too low or research flagged a skip signal
         if task == "qualify" && item.data.dig("qualify", "score").to_i < 3
           item.update!(status: "rejected")
           item.item_events.create!(
             pipeline_step: step,
-            event_type: "human_rejected",
+            event_type: "auto_rejected",
             note: "Auto-skip: fit_score=#{item.data.dig('qualify', 'score')} (#{item.data.dig('qualify', 'reason')})"
+          )
+        elsif task == "research" && item.data.dig("research", "skip") == true
+          item.update!(status: "rejected")
+          item.item_events.create!(
+            pipeline_step: step,
+            event_type: "auto_rejected",
+            note: "Auto-skip (Research): #{item.data.dig('research', 'skip_reason')}"
           )
         else
           item.advance_to_next_step!(batch_mode: true)
@@ -430,12 +444,25 @@ module StepExecutors
       SECTION
     end
 
+    SKIP_PREFIX_RE = /\A[\*\s#`>_]*SKIP[\s]*[:\-]\s*/i
+
     def parse_research_response(text)
+      stripped = text.strip
       data = item.data.dup
-      data["research"] = {
-        "summary" => text.strip,
-        "researched_at" => Time.current.iso8601
-      }
+      if stripped.match?(SKIP_PREFIX_RE)
+        skip_reason = stripped.sub(SKIP_PREFIX_RE, "").split("\n").first.to_s.strip
+        data["research"] = {
+          "skip" => true,
+          "skip_reason" => skip_reason,
+          "summary" => stripped,
+          "researched_at" => Time.current.iso8601
+        }
+      else
+        data["research"] = {
+          "summary" => stripped,
+          "researched_at" => Time.current.iso8601
+        }
+      end
       item.update!(data: data)
     end
 

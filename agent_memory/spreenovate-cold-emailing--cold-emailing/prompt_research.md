@@ -23,6 +23,23 @@ Besonders relevante Anknüpfungspunkte:
 - Manuelle Prozesse die offensichtlich automatisierbar wären
 - Wettbewerbsdruck durch KI-affine Konkurrenten
 
+## Skip-Signal (WICHTIG, zuerst prüfen!)
+
+Falls du während der Recherche auf einen der folgenden Sachverhalte stößt, BEGINNE den Output mit `SKIP: [kurzer Grund]` und brich ab. Kein Research-Text danach nötig.
+
+Skip-Gründe:
+1. **Person verstorben** — Nachruf, Sterbeanzeige, "in memoriam", o.ä.
+2. **Person nicht mehr in der Firma** — Wechsel, Ruhestand, Ausstieg (nur wenn klar belegt; "LinkedIn zeigt neue Rolle" reicht nicht)
+3. **Firma insolvent / nicht mehr aktiv** — Insolvenz-Anzeige, Firma aufgelöst, Website offline
+4. **Firma macht selbst KI als Kerngeschäft** — KI-Tool-Anbieter, KI-Beratung, KI-SaaS, generative-AI-Plattform, KI ist zentraler Bestandteil des Geschäftsmodells. Diese Firmen sind schlechter Fit für Spreenovate, weil sie KI-Kompetenz selbst aufbauen oder verkaufen. Ausnahme: Firma nutzt KI am Rand (z.B. ChatGPT-Plugin), ist aber in einer anderen Branche primär — dann kein Skip.
+
+Beispiele:
+- `SKIP: Kathrin von Hardenberg ist im April 2025 verstorben (private-banking-magazin.de, Mai 2025).`
+- `SKIP: BERA GmbH ist ein KI-Beratungshaus, schlechter Fit für Spreenovate (Website bera.de).`
+- `SKIP: Firma wurde 2024 aufgelöst, HRB-Eintrag gelöscht.`
+
+Wenn kein Skip-Grund zutrifft, ignoriere diese Sektion und schreibe normalen Research-Output.
+
 ## Output
 
 Fließtext, kein Bullshit, nur was für eine personalisierte Email nützlich ist. Keine Meta-Kommentare ("Ich recherchiere..."), keine Bold-Headers, keine Aufzählungszeichen, keine Markdown-Formatierung. Einfach Sätze hintereinander weg.

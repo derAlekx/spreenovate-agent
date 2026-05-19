@@ -28,11 +28,13 @@ class PipelineItemsController < ApplicationController
 
   def skip
     review_step = @item.current_step
-    @item.update!(status: "rejected")
+    data = @item.data.dup
+    data["user_comment"] = params[:user_comment] if params[:user_comment].present?
+    @item.update!(data: data, status: "rejected")
     @item.item_events.create!(
       pipeline_step: review_step,
       event_type: "human_rejected",
-      note: params[:reason]
+      note: params[:user_comment].presence || params[:reason]
     )
     respond_to do |format|
       format.turbo_stream
